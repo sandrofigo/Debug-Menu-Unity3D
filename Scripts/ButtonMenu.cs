@@ -36,7 +36,7 @@ namespace DebugMenu
 
         public void ResetAllMenuButtons()
         {
-            foreach (var button in buttons)
+            foreach (DebugMenuButton button in buttons)
             {
                 button.panelOpen = false;
             }

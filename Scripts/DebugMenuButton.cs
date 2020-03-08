@@ -39,14 +39,14 @@ namespace DebugMenu
                 DebugMenuItemPanel p = panel.GetComponent<DebugMenuItemPanel>();
                 p.button = this;
 
-                foreach (var node in node.children)
+                foreach (var childNode in node.children)
                 {
                     RectTransform menuItem = Instantiate(menuItemPrefab).GetComponent<RectTransform>();
                     menuItem.SetParent(panel);
-                    menuItem.GetComponentInChildren<Text>().text = node.name;
+                    menuItem.GetComponentInChildren<Text>().text = childNode.name;
                     DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
-                    m.node = node;
-                    if (node.children.Count > 0)
+                    m.node = childNode;
+                    if (childNode.children.Count > 0)
                         m.arrow.gameObject.SetActive(true);
                 }
 

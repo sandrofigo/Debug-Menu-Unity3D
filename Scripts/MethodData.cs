@@ -10,7 +10,7 @@ namespace DebugMenu
     public class MethodData
     {
         public MonoBehaviour monoBehaviour;
-        public List<MethodInfo> methods;
+        public readonly List<MethodInfo> methods;
 
         public MethodData()
         {

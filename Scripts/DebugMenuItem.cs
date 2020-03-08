@@ -71,7 +71,7 @@ namespace DebugMenu
                     DebugMenuManager.Instance.lastInvokedNode = node;
                     object obj = node.method.Invoke(node.monoBehaviour, null);
                     if (obj != null)
-                        DebugMenuManager.Log("Return value: " + obj.ToString() + "\n");
+                        DebugMenuManager.Log($"Return value: {obj}\n");
 
                     ButtonMenu.Instance.ResetAllMenuButtons();
                     ButtonMenu.Instance.DestroyAllOpenPanels();
