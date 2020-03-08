@@ -1,9 +1,15 @@
 fileFormatVersion: 2
-guid: fc84175820d4af04e9bdc071db747013
+guid: 92514d1d073f63142a5cc464c6d368dd
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - canvasPrefab: {fileID: 1175271990124774, guid: f372d99a91b228d4c8c564330c13e250,
+      type: 2}
+  - m_CLIPanel: {instanceID: 0}
+  - m_InputField: {instanceID: 0}
+  - m_SuggestionsText: {instanceID: 0}
+  - m_OutputText: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
