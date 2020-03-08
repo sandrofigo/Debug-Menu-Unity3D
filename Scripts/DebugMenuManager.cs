@@ -1,12 +1,12 @@
 ﻿//
 // Copyright (c) Sandro Figo
 //
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace DebugMenu
@@ -94,11 +94,11 @@ namespace DebugMenu
 
             // Add menu buttons
 
-            nodes.Sort((node1, node2) => node1.name.CompareTo(node2.name));
+            nodes.Sort((node1, node2) => string.Compare(node1.name, node2.name, StringComparison.Ordinal));
 
             foreach (var node in nodes)
             {
-                GameObject menuButton = Instantiate(menuButtonPrefab);
+                GameObject menuButton = Instantiate(menuButtonPrefab, buttonMenu, true);
                 menuButton.GetComponentInChildren<Text>().text = node.name;
 
                 DebugMenuButton m = menuButton.GetComponent<DebugMenuButton>();
@@ -106,8 +106,6 @@ namespace DebugMenu
                 m.node = node;
 
                 ButtonMenu.Instance.buttons.Add(m);
-
-                menuButton.transform.SetParent(buttonMenu);
             }
 
             // Prevent layout glitch
@@ -214,14 +212,14 @@ namespace DebugMenu
                     if (obj == null)
                         Log("Return value: null\n");
                     else
-                        Log("Return value: " + obj.ToString() + "\n");
+                        Log($"Return value: {obj}\n");
                 }
                 else
                 {
-                    Log("'" + inputField.text + "' is not a valid method!\n");
+                    Log($"'{inputField.text}' is not a valid method!\n");
                 }
 
-                inputField.text = "";
+                inputField.text = string.Empty;
                 inputField.ActivateInputField();
             }
         }
@@ -231,12 +229,12 @@ namespace DebugMenu
             string input = inputField.text;
 
             Suggestion[] suggestions = GetSuggestions(input);
-            suggestionsText.text = "";
+            suggestionsText.text = string.Empty;
 
-            string s = "";
-            for (int i = 0; i < suggestions.Length; i++)
+            string s = string.Empty;
+            foreach (Suggestion suggestion in suggestions)
             {
-                s += suggestions[i].path + ((suggestions[i].node.children.Count > 0) ? "..." : "") + " " + suggestions[i].typeText + "\n";
+                s += $"{suggestion.path}{(suggestion.node.children.Count > 0 ? "..." : string.Empty)} {suggestion.typeText}\n";
             }
 
             suggestionsText.text = s;
@@ -246,7 +244,7 @@ namespace DebugMenu
         {
             List<Suggestion> suggestions = new List<Suggestion>();
 
-            if (path == "") return suggestions.ToArray();
+            if (path == string.Empty) return suggestions.ToArray();
 
             string[] split = path.Split('.');
 
@@ -275,8 +273,8 @@ namespace DebugMenu
             {
                 if (node.name.StartsWith(split[split.Length - 1], StringComparison.OrdinalIgnoreCase))
                 {
-                    string suggestion = parentPath + ((parentPath == "") ? "" : ".") + node.name;
-                    string typeText = "";
+                    string suggestion = parentPath + (parentPath == string.Empty ? string.Empty : ".") + node.name;
+                    string typeText = string.Empty;
 
                     if (node.method != null)
                     {
@@ -289,7 +287,8 @@ namespace DebugMenu
                             for (int i = 0; i < parameters.Length; i++)
                             {
                                 typeText += TypeAliases[parameters[i].ParameterType];
-                                if (i < parameters.Length - 1) typeText += ", ";
+                                if (i < parameters.Length - 1)
+                                    typeText += ", ";
                             }
 
                             typeText += ")";
@@ -310,12 +309,12 @@ namespace DebugMenu
 
         private void ClearSuggestions()
         {
-            suggestionsText.text = "";
+            suggestionsText.text = string.Empty;
         }
 
         private void ClearOutput()
         {
-            outputText.text = "";
+            outputText.text = string.Empty;
         }
 
         /// <summary>
@@ -354,110 +353,101 @@ namespace DebugMenu
             return null;
         }
 
-        private Node GetNode(List<Node> nodeCollection, string name)
+        private Node GetNode(List<Node> nodeCollection, string nodeName)
         {
-            for (int i = 0; i < nodeCollection.Count; i++)
+            foreach (Node node in nodeCollection)
             {
-                if (nodeCollection[i].name == name)
-                {
-                    return nodeCollection[i];
-                }
+                if (node.name == nodeName)
+                    return node;
             }
+
             return null;
         }
 
-        private bool NodeExists(string name)
+        private bool NodeExists(string nodeName)
         {
             bool exists = false;
-            for (int i = 0; i < nodes.Count; i++)
+            foreach (Node node in nodes)
             {
-                exists = (nodes[i].name == name) ? true : false;
+                exists = node.name == nodeName;
             }
+
             return exists;
         }
 
         private void ConstructNodeTree()
         {
-            //List<MethodInfo> methods = new List<MethodInfo>();
-            //for (int i = 0; i < methodData.Length; i++)
-            //{
-            //    methods.AddRange(methodData[i].methods);
-            //}
-
-            //MethodInfo[] me = GetMethodData();
-
-            for (int m = 0; m < methodData.Length; m++)
+            foreach (MethodData data in methodData)
             {
-                for (int i = 0; i < methodData[m].methods.Count; i++)
+                foreach (MethodInfo info in data.methods)
                 {
-                    DebugMethod method = GetDebugMethod(methodData[m].methods[i]);
+                    DebugMethod method = GetDebugMethod(info);
 
-                    if (method != null)
+                    if (method == null)
+                        continue;
+
+                    // Custom path
+                    if (method.customPath != string.Empty)
                     {
-                        // Custom path
-                        if (method.customPath != "")
+                        string[] split = method.customPath.Split('.');
+
+                        List<Node> currentNodeList = nodes;
+
+                        for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
                         {
-                            string[] split = method.customPath.Split('.');
+                            Node n = GetNode(currentNodeList, split[splitIndex]);
 
-                            List<Node> currentNodeList = nodes;
-
-                            for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
+                            if (n == null)
                             {
-                                Node n = new Node();
-                                n = GetNode(currentNodeList, split[splitIndex]);
-
-                                if (n == null)
+                                n = new Node
                                 {
-                                    n = new Node
-                                    {
-                                        name = split[splitIndex]
-                                    };
-                                    currentNodeList.Add(n);
-                                }
+                                    name = split[splitIndex]
+                                };
+                                currentNodeList.Add(n);
+                            }
 
-                                currentNodeList = n.children;
+                            currentNodeList = n.children;
 
-                                if (splitIndex == split.Length - 1)
+                            if (splitIndex == split.Length - 1)
+                            {
+                                Node finalNode = new Node
                                 {
-                                    Node finalNode = new Node
-                                    {
-                                        name = methodData[m].methods[i].Name,
-                                        method = methodData[m].methods[i],
-                                        monoBehaviour = methodData[m].monoBehaviour
-                                    };
-                                    n.children.Add(finalNode);
-                                }
+                                    name = info.Name,
+                                    method = info,
+                                    monoBehaviour = data.monoBehaviour
+                                };
+                                n.children.Add(finalNode);
                             }
                         }
-                        else // Type path
+                    }
+                    else // Type path
+                    {
+                        Node childNode = new Node
                         {
-                            Node childNode = new Node
+                            name = info.Name,
+                            method = info,
+                            monoBehaviour = data.monoBehaviour
+                        };
+
+                        string baseNodeName = info.DeclaringType.ToString();
+
+                        Node baseNode = GetNode(nodes, baseNodeName);
+
+                        if (baseNode != null)
+                        {
+                            // Base node exists
+                            baseNode.children.Add(childNode);
+                        }
+                        else
+                        {
+                            // Base node doesn't exist
+                            baseNode = new Node
                             {
-                                name = methodData[m].methods[i].Name,
-                                method = methodData[m].methods[i],
-                                monoBehaviour = methodData[m].monoBehaviour
+                                name = info.DeclaringType.ToString()
                             };
+                            baseNode.children.Add(childNode);
 
-                            string baseNodeName = methodData[m].methods[i].DeclaringType.ToString();
-
-                            Node baseNode = GetNode(nodes, baseNodeName);
-
-                            if (baseNode != null)
-                            {
-                                // Base node exists
-                                baseNode.children.Add(childNode);
-                            }
-                            else
-                            {
-                                // Base node doesn't exist
-                                baseNode = new Node
-                                {
-                                    name = methodData[m].methods[i].DeclaringType.ToString()
-                                };
-                                baseNode.children.Add(childNode);
-
-                                nodes.Add(baseNode);
-                            }
+                            nodes.Add(baseNode);
                         }
                     }
                 }
@@ -472,26 +462,24 @@ namespace DebugMenu
         {
             MonoBehaviour[] active = FindObjectsOfType<MonoBehaviour>();
 
-            List<MethodData> methodData = new List<MethodData>();
+            List<MethodData> methods = new List<MethodData>();
 
             List<Type> usedTypes = new List<Type>();
 
             foreach (MonoBehaviour mono in active)
             {
-                
-                    MethodData data = new MethodData();
-                    data.methods.AddRange(mono.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public));
-                    data.monoBehaviour = mono;
+                MethodData data = new MethodData();
+                data.methods.AddRange(mono.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public));
+                data.monoBehaviour = mono;
 
                 if (data.methods.Count > 0 && !usedTypes.Contains(mono.GetType()))
                 {
-                    methodData.Add(data);
+                    methods.Add(data);
                     usedTypes.Add(mono.GetType());
                 }
-                
             }
 
-            return methodData.ToArray();
+            return methods.ToArray();
         }
 
         /// <summary>
@@ -513,12 +501,11 @@ namespace DebugMenu
         {
             List<DebugMethod> methodList = new List<DebugMethod>();
 
-            for (int i = 0; i < methods.Length; i++)
+            foreach (MethodInfo methodInfo in methods)
             {
-                DebugMethod m = Attribute.GetCustomAttribute(methods[i], typeof(DebugMethod)) as DebugMethod;
+                DebugMethod m = Attribute.GetCustomAttribute(methodInfo, typeof(DebugMethod)) as DebugMethod;
 
-                if (methodList != null)
-                    methodList.Add(m);
+                methodList.Add(m);
             }
 
             return methodList.ToArray();
@@ -531,42 +518,40 @@ namespace DebugMenu
         /// <returns></returns>
         private bool IsDebugMethod(MethodInfo method)
         {
-            DebugMethod m = Attribute.GetCustomAttribute(method, typeof(DebugMethod)) as DebugMethod;
-
-            return (m == null) ? false : true;
+            return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) is DebugMethod;
         }
 
         private static readonly Dictionary<Type, string> TypeAliases = new Dictionary<Type, string>()
-    {
-        { typeof(byte), "byte" },
-        { typeof(sbyte), "sbyte" },
-        { typeof(short), "short" },
-        { typeof(ushort), "ushort" },
-        { typeof(int), "int" },
-        { typeof(uint), "uint" },
-        { typeof(long), "long" },
-        { typeof(ulong), "ulong" },
-        { typeof(float), "float" },
-        { typeof(double), "double" },
-        { typeof(decimal), "decimal" },
-        { typeof(object), "object" },
-        { typeof(bool), "bool" },
-        { typeof(char), "char" },
-        { typeof(string), "string" },
-        { typeof(void), "void" },
-        { typeof(byte?), "byte?" },
-        { typeof(sbyte?), "sbyte?" },
-        { typeof(short?), "short?" },
-        { typeof(ushort?), "ushort?" },
-        { typeof(int?), "int?" },
-        { typeof(uint?), "uint?" },
-        { typeof(long?), "long?" },
-        { typeof(ulong?), "ulong?" },
-        { typeof(float?), "float?" },
-        { typeof(double?), "double?" },
-        { typeof(decimal?), "decimal?" },
-        { typeof(bool?), "bool?" },
-        { typeof(char?), "char?" }
-    };
+        {
+            {typeof(byte), "byte"},
+            {typeof(sbyte), "sbyte"},
+            {typeof(short), "short"},
+            {typeof(ushort), "ushort"},
+            {typeof(int), "int"},
+            {typeof(uint), "uint"},
+            {typeof(long), "long"},
+            {typeof(ulong), "ulong"},
+            {typeof(float), "float"},
+            {typeof(double), "double"},
+            {typeof(decimal), "decimal"},
+            {typeof(object), "object"},
+            {typeof(bool), "bool"},
+            {typeof(char), "char"},
+            {typeof(string), "string"},
+            {typeof(void), "void"},
+            {typeof(byte?), "byte?"},
+            {typeof(sbyte?), "sbyte?"},
+            {typeof(short?), "short?"},
+            {typeof(ushort?), "ushort?"},
+            {typeof(int?), "int?"},
+            {typeof(uint?), "uint?"},
+            {typeof(long?), "long?"},
+            {typeof(ulong?), "ulong?"},
+            {typeof(float?), "float?"},
+            {typeof(double?), "double?"},
+            {typeof(decimal?), "decimal?"},
+            {typeof(bool?), "bool?"},
+            {typeof(char?), "char?"}
+        };
     }
 }

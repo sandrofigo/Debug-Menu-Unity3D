@@ -17,6 +17,6 @@ namespace DebugMenu
             this.customPath = customPath;
         }
 
-        public string customPath = String.Empty;
+        public string customPath = string.Empty;
     }
 }

@@ -27,7 +27,7 @@ namespace DebugMenu
 
         public Node parent;
 
-        public List<Node> children = new List<Node>();
+        public readonly List<Node> children = new List<Node>();
 
         public string name;
     }
