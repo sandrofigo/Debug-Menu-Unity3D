@@ -5,7 +5,6 @@
 	"license": "MIT",
 	"name": "com.sandrofigo.debug-menu-unity3d",
 	"version": "0.1.0",
-	"type": "library",
 	"dependencies": {
 	}
 }
