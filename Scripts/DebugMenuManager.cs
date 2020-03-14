@@ -13,6 +13,7 @@ namespace DebugMenu
 {
     public class DebugMenuManager : MonoBehaviour
     {
+#pragma warning disable 0649
         [SerializeField]
         private RectTransform consolePanel;
 
@@ -27,6 +28,7 @@ namespace DebugMenu
 
         [SerializeField]
         private Text suggestionsText;
+#pragma warning restore 0649
 
         private static Text outputText;
 
