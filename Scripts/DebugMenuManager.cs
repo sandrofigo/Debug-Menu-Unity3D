@@ -391,7 +391,7 @@ namespace DebugMenu
                     // Custom path
                     if (method.customPath != string.Empty)
                     {
-                        string[] split = method.customPath.Split('.');
+                        string[] split = method.customPath.Split('/');
 
                         List<Node> currentNodeList = nodes;
 
