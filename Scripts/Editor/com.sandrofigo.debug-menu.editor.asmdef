@@ -1,7 +1,11 @@
 {
-    "name": "com.sandrofigo.debug-menu",
-    "references": [],
-    "includePlatforms": [],
+    "name": "com.sandrofigo.debug-menu.editor",
+    "references": [
+        "GUID:04300b7ad3703314aa9fb7a02aa85601"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
