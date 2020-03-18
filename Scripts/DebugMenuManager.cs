@@ -46,11 +46,11 @@ namespace DebugMenu
 
         public delegate void VisibilityHandler(bool visible);
 
-        public event VisibilityHandler OnVisibilityChanged;
+        public event VisibilityHandler VisibilityChanged;
 
-        private void VisibilityChanged()
+        private void OnVisibilityChanged()
         {
-            OnVisibilityChanged?.Invoke(Visible);
+            VisibilityChanged?.Invoke(Visible);
         }
 
         private void Awake()
@@ -79,10 +79,6 @@ namespace DebugMenu
                 Debug.LogError("No UI EventSystem is present in the current scene!");
                 return;
             }
-
-            // Initialization
-            inputField.Select();
-            inputField.ActivateInputField();
 
             ClearSuggestions();
             ClearOutput();
@@ -136,7 +132,7 @@ namespace DebugMenu
                     ButtonMenu.Instance.ResetAllMenuButtons();
                 }
 
-                VisibilityChanged();
+                OnVisibilityChanged();
             }
 
             if (Input.GetKeyDown(KeyCode.F4) && lastInvokedNode != null)
