@@ -4,7 +4,7 @@ A debug menu to call public methods on active MonoBehaviours in Unity
 ---
 ## Installation
 There are multiple ways to install this package into your project:
-- Add the the package to the Unity package manager using the HTTPS URL of this repository (recommended)
+- Add the package to the Unity package manager using the HTTPS URL of this repository (recommended)
 - Download the whole repository as a .zip and place the contents into a subfolder in your assets folder
 - Fork the repository and add it as a submodule in git
 
