@@ -15,9 +15,6 @@ namespace DebugMenu
         public bool panelOpen;
 
         [HideInInspector]
-        public bool isRoot;
-
-        [HideInInspector]
         public Node node;
 
         public void OnClick()

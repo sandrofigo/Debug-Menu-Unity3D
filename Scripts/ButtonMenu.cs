@@ -1,15 +1,22 @@
 ﻿//
 // Copyright (c) Sandro Figo
 //
+
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace DebugMenu
 {
     public class ButtonMenu : MonoBehaviour
     {
-        public static ButtonMenu Instance { get; set; }
+        public static ButtonMenu Instance { get; private set; } //TODO: use generic singleton class
 
+        [SerializeField]
+        private GameObject menuButtonPrefab = null;
+        
         private void Awake()
         {
             if (Instance == null)
@@ -39,6 +46,23 @@ namespace DebugMenu
             foreach (DebugMenuButton button in buttons)
             {
                 button.panelOpen = false;
+            }
+        }
+
+        public void CreateMenuButtons(IEnumerable<Node> nodes)
+        {
+            var nodeList = nodes.ToList();
+            nodeList.Sort((node1, node2) => string.Compare(node1.name, node2.name, StringComparison.Ordinal));
+
+            foreach (Node node in nodeList)
+            {
+                GameObject menuButton = Instantiate(menuButtonPrefab, transform, true);
+                menuButton.GetComponentInChildren<Text>().text = node.name;
+
+                var debugMenuButton = menuButton.GetComponent<DebugMenuButton>();
+                debugMenuButton.node = node;
+
+                buttons.Add(debugMenuButton);
             }
         }
     }

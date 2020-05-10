@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,36 +14,29 @@ namespace DebugMenu
 {
     public class DebugMenuManager : MonoBehaviour
     {
-#pragma warning disable 0649
         [SerializeField]
-        private RectTransform consolePanel;
+        private RectTransform consolePanel = null;
 
         [SerializeField]
-        private RectTransform buttonMenu;
+        private RectTransform buttonMenu = null;
 
         [SerializeField]
-        private GameObject menuButtonPrefab;
+        private InputField inputField = null;
 
         [SerializeField]
-        private InputField inputField;
-
-        [SerializeField]
-        private Text suggestionsText;
-#pragma warning restore 0649
+        private Text suggestionsText = null;
 
         private static Text outputText;
 
-        private List<Node> nodes = new List<Node>();
-
-        private MethodData[] methodData;
+        private readonly List<Node> nodes = new List<Node>();
 
         private string lastMethod;
-
-        public static DebugMenuManager Instance { get; set; }
+        
+        public static DebugMenuManager Instance { get; private set; }
 
         public Node lastInvokedNode;
 
-        public bool Visible { get; set; }
+        private bool Visible { get; set; }
 
         public delegate void VisibilityHandler(bool visible);
 
@@ -84,27 +78,11 @@ namespace DebugMenu
             ClearOutput();
 
             inputField.onValueChanged.AddListener(delegate { OnInputFieldChanged(); });
-
-            methodData = GetMethodData();
-
-            // Construct node tree
-            ConstructNodeTree();
+            
+            ConstructNodeTree(GetMethodData());
 
             // Add menu buttons
-
-            nodes.Sort((node1, node2) => string.Compare(node1.name, node2.name, StringComparison.Ordinal));
-
-            foreach (var node in nodes)
-            {
-                GameObject menuButton = Instantiate(menuButtonPrefab, buttonMenu, true);
-                menuButton.GetComponentInChildren<Text>().text = node.name;
-
-                DebugMenuButton m = menuButton.GetComponent<DebugMenuButton>();
-                m.isRoot = true;
-                m.node = node;
-
-                ButtonMenu.Instance.buttons.Add(m);
-            }
+            ButtonMenu.Instance.CreateMenuButtons(nodes);
 
             // Prevent layout glitch
             LayoutRebuilder.ForceRebuildLayoutImmediate(buttonMenu);
@@ -113,7 +91,8 @@ namespace DebugMenu
 
         private void Update()
         {
-            if ((Input.GetKeyDown(KeyCode.F1) || Input.GetKeyDown(KeyCode.F3)) && (Debug.isDebugBuild || Application.isEditor))
+            //TODO: use EditorPrefs
+            if (Input.GetKeyDown(KeyCode.F1) || Input.GetKeyDown(KeyCode.F3))
             {
                 Visible = !Visible;
 
@@ -181,7 +160,7 @@ namespace DebugMenu
 
                 string[] split = inputField.text.Split(' ');
 
-                Node node = FindNode(split[0]);
+                Node node = FindNodeByPath(split[0]);
 
                 if (node?.method != null)
                 {
@@ -252,7 +231,7 @@ namespace DebugMenu
 
             string parentPath = path.Substring(0, lastSeparatorIndex);
 
-            Node lastCompleteNode = FindNode(parentPath);
+            Node lastCompleteNode = FindNodeByPath(parentPath);
 
             List<Node> currentNodes = new List<Node>();
 
@@ -320,15 +299,15 @@ namespace DebugMenu
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        private Node FindNode(string path)
+        private Node FindNodeByPath(string path)
         {
             string[] split = path.Split('.');
 
-            List<Node> currentNodes = nodes;
+            var currentNodes = nodes;
 
             for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
             {
-                foreach (var node in currentNodes)
+                foreach (Node node in currentNodes)
                 {
                     if (node.name == split[splitIndex])
                     {
@@ -351,29 +330,9 @@ namespace DebugMenu
             return null;
         }
 
-        private Node GetNode(List<Node> nodeCollection, string nodeName)
-        {
-            foreach (Node node in nodeCollection)
-            {
-                if (node.name == nodeName)
-                    return node;
-            }
+        private Node GetNodeByName(IEnumerable<Node> nodeCollection, string nodeName) => nodeCollection.FirstOrDefault(node => node.name == nodeName);
 
-            return null;
-        }
-
-        private bool NodeExists(string nodeName)
-        {
-            bool exists = false;
-            foreach (Node node in nodes)
-            {
-                exists = node.name == nodeName;
-            }
-
-            return exists;
-        }
-
-        private void ConstructNodeTree()
+        private void ConstructNodeTree(IEnumerable<MethodData> methodData)
         {
             foreach (MethodData data in methodData)
             {
@@ -398,7 +357,7 @@ namespace DebugMenu
 
                             string baseNodeName = info.DeclaringType.ToString();
 
-                            Node baseNode = GetNode(nodes, baseNodeName);
+                            Node baseNode = GetNodeByName(nodes, baseNodeName);
 
                             if (baseNode != null)
                             {
@@ -428,7 +387,7 @@ namespace DebugMenu
 
                         for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
                         {
-                            Node n = GetNode(currentNodeList, split[splitIndex]);
+                            Node n = GetNodeByName(currentNodeList, split[splitIndex]);
 
                             if (n == null)
                             {
@@ -466,7 +425,7 @@ namespace DebugMenu
 
                         string baseNodeName = info.DeclaringType.ToString();
 
-                        Node baseNode = GetNode(nodes, baseNodeName);
+                        Node baseNode = GetNodeByName(nodes, baseNodeName);
 
                         if (baseNode != null)
                         {
@@ -490,27 +449,26 @@ namespace DebugMenu
         }
 
         /// <summary>
-        /// Returns a list of <see cref="MethodData"/> from active <see cref="MonoBehaviour"/>s in the scene
+        /// Returns a list of <see cref="MethodData"/> from active <see cref="MonoBehaviour"/>s in the scene.
         /// </summary>
-        /// <returns></returns>
-        private MethodData[] GetMethodData()
+        private IEnumerable<MethodData> GetMethodData()
         {
-            MonoBehaviour[] active = FindObjectsOfType<MonoBehaviour>();
+            var activeMonoBehaviours = FindObjectsOfType<MonoBehaviour>();
 
-            List<MethodData> methods = new List<MethodData>();
+            var methods = new List<MethodData>();
 
-            List<Type> usedTypes = new List<Type>();
+            var usedTypes = new HashSet<Type>();
 
-            foreach (MonoBehaviour mono in active)
+            foreach (MonoBehaviour monoBehaviour in activeMonoBehaviours)
             {
-                MethodData data = new MethodData();
-                data.methods.AddRange(mono.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public));
-                data.monoBehaviour = mono;
+                var methodData = new MethodData();
+                
+                methodData.methods.AddRange(monoBehaviour.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public));
+                methodData.monoBehaviour = monoBehaviour;
 
-                if (data.methods.Count > 0 && !usedTypes.Contains(mono.GetType()))
+                if (methodData.methods.Count > 0 && usedTypes.Add(monoBehaviour.GetType()))
                 {
-                    methods.Add(data);
-                    usedTypes.Add(mono.GetType());
+                    methods.Add(methodData);
                 }
             }
 
@@ -518,45 +476,14 @@ namespace DebugMenu
         }
 
         /// <summary>
-        /// Returns a <see cref="DebugMethod"/>, if there is no attribute assigned it will return null
+        /// Returns a <see cref="DebugMethod"/>, if there is no attribute assigned it will return null.
         /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
         public DebugMethod GetDebugMethod(MethodInfo method)
         {
             return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) as DebugMethod;
         }
 
-        /// <summary>
-        /// Returns an array of <see cref="DebugMethod"/>s
-        /// </summary>
-        /// <param name="methods"></param>
-        /// <returns></returns>
-        private DebugMethod[] GetDebugMethods(MethodInfo[] methods)
-        {
-            List<DebugMethod> methodList = new List<DebugMethod>();
-
-            foreach (MethodInfo methodInfo in methods)
-            {
-                DebugMethod m = Attribute.GetCustomAttribute(methodInfo, typeof(DebugMethod)) as DebugMethod;
-
-                methodList.Add(m);
-            }
-
-            return methodList.ToArray();
-        }
-
-        /// <summary>
-        /// Returns true if a method is a debug method
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private bool IsDebugMethod(MethodInfo method)
-        {
-            return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) is DebugMethod;
-        }
-
-        private static readonly Dictionary<Type, string> TypeAliases = new Dictionary<Type, string>()
+        private static readonly Dictionary<Type, string> TypeAliases = new Dictionary<Type, string>
         {
             {typeof(byte), "byte"},
             {typeof(sbyte), "sbyte"},

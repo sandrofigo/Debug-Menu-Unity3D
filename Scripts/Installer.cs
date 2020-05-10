@@ -10,6 +10,9 @@ namespace DebugMenu
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void OnAfterSceneLoadRuntimeMethod()
         {
+            if (!Debug.isDebugBuild && !Application.isEditor) //TODO: use EditorPrefs
+                return;
+
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
