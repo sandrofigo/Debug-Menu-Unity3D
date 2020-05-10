@@ -6,28 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace DebugMenu
 {
-    public class ButtonMenu : MonoBehaviour
+    public class ButtonMenu : Singleton<ButtonMenu>
     {
-        public static ButtonMenu Instance { get; private set; } //TODO: use generic singleton class
-
         [SerializeField]
         private GameObject menuButtonPrefab = null;
-        
-        private void Awake()
-        {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(this);
-            }
-        }
 
         public List<DebugMenuButton> buttons = new List<DebugMenuButton>();
         public List<RectTransform> openPanels = new List<RectTransform>();

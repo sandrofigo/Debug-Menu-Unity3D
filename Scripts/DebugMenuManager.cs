@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace DebugMenu
 {
-    public class DebugMenuManager : MonoBehaviour
+    public class DebugMenuManager : Singleton<DebugMenuManager>
     {
         [SerializeField]
         private RectTransform consolePanel = null;
@@ -31,8 +31,6 @@ namespace DebugMenu
 
         private string lastMethod;
 
-        public static DebugMenuManager Instance { get; private set; }
-
         public Node lastInvokedNode;
 
         private bool Visible { get; set; }
@@ -46,18 +44,10 @@ namespace DebugMenu
             VisibilityChanged?.Invoke(Visible);
         }
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(this);
-                return;
-            }
-
+            base.Awake();
+            
             outputText = transform.Find("Console Panel/Output Text").GetComponent<Text>();
 
             consolePanel.gameObject.SetActive(false);
