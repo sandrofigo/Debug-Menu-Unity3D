@@ -34,7 +34,7 @@ namespace DebugMenu
                     EditorPrefs.SetFloat(Key, v);
                     break;
                 default:
-                    throw GetTypeNotSupportedException();
+                    throw new Exception($"The provided type {value.GetType().FullName} is not supported!");
             }
         }
 
@@ -52,12 +52,7 @@ namespace DebugMenu
             if (typeof(T) == typeof(float))
                 return EditorPrefs.GetFloat(Key, (float)DefaultValue);
 
-            throw GetTypeNotSupportedException();
-        }
-
-        private static Exception GetTypeNotSupportedException()
-        {
-            return new Exception($"The provided type {typeof(T).FullName} is not supported!");
+            throw new Exception($"The provided type {typeof(T).FullName} is not supported!");
         }
     }
 }
