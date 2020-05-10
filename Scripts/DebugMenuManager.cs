@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -31,7 +30,7 @@ namespace DebugMenu
         private readonly List<Node> nodes = new List<Node>();
 
         private string lastMethod;
-        
+
         public static DebugMenuManager Instance { get; private set; }
 
         public Node lastInvokedNode;
@@ -78,8 +77,8 @@ namespace DebugMenu
             ClearOutput();
 
             inputField.onValueChanged.AddListener(delegate { OnInputFieldChanged(); });
-            
-            ConstructNodeTree(GetMethodData());
+
+            ConstructNodeTree(Helper.GetMethodData());
 
             // Add menu buttons
             ButtonMenu.Instance.CreateMenuButtons(nodes);
@@ -132,7 +131,7 @@ namespace DebugMenu
                 {
                     string input = inputField.text;
 
-                    Suggestion[] suggestions = GetSuggestions(input);
+                    var suggestions = GetSuggestions(input);
 
                     if (suggestions.Length > 0)
                     {
@@ -165,8 +164,7 @@ namespace DebugMenu
                 if (node?.method != null)
                 {
                     // Valid method
-
-                    List<object> parameters = new List<object>();
+                    var parameters = new List<object>();
 
                     var parameterTypes = node.method.GetParameters();
 
@@ -174,7 +172,7 @@ namespace DebugMenu
                     {
                         try
                         {
-                            var x = Convert.ChangeType(split[i], parameterTypes[i - 1].ParameterType);
+                            object x = Convert.ChangeType(split[i], parameterTypes[i - 1].ParameterType);
                             parameters.Add(x);
                         }
                         catch (Exception e)
@@ -186,10 +184,7 @@ namespace DebugMenu
                     Log(inputField.text);
                     lastInvokedNode = node;
                     object obj = node.method.Invoke(node.monoBehaviour, parameters.ToArray());
-                    if (obj == null)
-                        Log("Return value: null\n");
-                    else
-                        Log($"Return value: {obj}\n");
+                    Log($"Return value: {obj ?? "null"}");
                 }
                 else
                 {
@@ -237,7 +232,7 @@ namespace DebugMenu
 
             if (lastCompleteNode == null)
             {
-                // Only use the whole node tree if there is no separator ('.') present
+                // Use the whole node tree if there is no separator ('.') present
                 if (!path.Contains("."))
                     currentNodes = nodes;
             }
@@ -246,7 +241,7 @@ namespace DebugMenu
                 currentNodes = lastCompleteNode.children;
             }
 
-            foreach (var node in currentNodes)
+            foreach (Node node in currentNodes)
             {
                 if (node.name.StartsWith(split[split.Length - 1], StringComparison.OrdinalIgnoreCase))
                 {
@@ -263,7 +258,7 @@ namespace DebugMenu
 
                             for (int i = 0; i < parameters.Length; i++)
                             {
-                                typeText += TypeAliases[parameters[i].ParameterType];
+                                typeText += Helper.TypeAliases[parameters[i].ParameterType];
                                 if (i < parameters.Length - 1)
                                     typeText += ", ";
                             }
@@ -330,15 +325,13 @@ namespace DebugMenu
             return null;
         }
 
-        private Node GetNodeByName(IEnumerable<Node> nodeCollection, string nodeName) => nodeCollection.FirstOrDefault(node => node.name == nodeName);
-
         private void ConstructNodeTree(IEnumerable<MethodData> methodData)
         {
             foreach (MethodData data in methodData)
             {
                 foreach (MethodInfo info in data.methods)
                 {
-                    DebugMethod method = GetDebugMethod(info);
+                    DebugMethod method = Helper.GetDebugMethod(info);
 
                     if (method == null)
                         continue;
@@ -357,7 +350,7 @@ namespace DebugMenu
 
                             string baseNodeName = info.DeclaringType.ToString();
 
-                            Node baseNode = GetNodeByName(nodes, baseNodeName);
+                            Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
 
                             if (baseNode != null)
                             {
@@ -377,7 +370,7 @@ namespace DebugMenu
                             }
                         }
                     }
-                    
+
                     // Custom path
                     if (method.customPath != string.Empty)
                     {
@@ -387,7 +380,7 @@ namespace DebugMenu
 
                         for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
                         {
-                            Node n = GetNodeByName(currentNodeList, split[splitIndex]);
+                            Node n = Helper.GetNodeByName(currentNodeList, split[splitIndex]);
 
                             if (n == null)
                             {
@@ -425,7 +418,7 @@ namespace DebugMenu
 
                         string baseNodeName = info.DeclaringType.ToString();
 
-                        Node baseNode = GetNodeByName(nodes, baseNodeName);
+                        Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
 
                         if (baseNode != null)
                         {
@@ -447,73 +440,5 @@ namespace DebugMenu
                 }
             }
         }
-
-        /// <summary>
-        /// Returns a list of <see cref="MethodData"/> from active <see cref="MonoBehaviour"/>s in the scene.
-        /// </summary>
-        private IEnumerable<MethodData> GetMethodData()
-        {
-            var activeMonoBehaviours = FindObjectsOfType<MonoBehaviour>();
-
-            var methods = new List<MethodData>();
-
-            var usedTypes = new HashSet<Type>();
-
-            foreach (MonoBehaviour monoBehaviour in activeMonoBehaviours)
-            {
-                var methodData = new MethodData();
-                
-                methodData.methods.AddRange(monoBehaviour.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public));
-                methodData.monoBehaviour = monoBehaviour;
-
-                if (methodData.methods.Count > 0 && usedTypes.Add(monoBehaviour.GetType()))
-                {
-                    methods.Add(methodData);
-                }
-            }
-
-            return methods.ToArray();
-        }
-
-        /// <summary>
-        /// Returns a <see cref="DebugMethod"/>, if there is no attribute assigned it will return null.
-        /// </summary>
-        public DebugMethod GetDebugMethod(MethodInfo method)
-        {
-            return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) as DebugMethod;
-        }
-
-        private static readonly Dictionary<Type, string> TypeAliases = new Dictionary<Type, string>
-        {
-            {typeof(byte), "byte"},
-            {typeof(sbyte), "sbyte"},
-            {typeof(short), "short"},
-            {typeof(ushort), "ushort"},
-            {typeof(int), "int"},
-            {typeof(uint), "uint"},
-            {typeof(long), "long"},
-            {typeof(ulong), "ulong"},
-            {typeof(float), "float"},
-            {typeof(double), "double"},
-            {typeof(decimal), "decimal"},
-            {typeof(object), "object"},
-            {typeof(bool), "bool"},
-            {typeof(char), "char"},
-            {typeof(string), "string"},
-            {typeof(void), "void"},
-            {typeof(byte?), "byte?"},
-            {typeof(sbyte?), "sbyte?"},
-            {typeof(short?), "short?"},
-            {typeof(ushort?), "ushort?"},
-            {typeof(int?), "int?"},
-            {typeof(uint?), "uint?"},
-            {typeof(long?), "long?"},
-            {typeof(ulong?), "ulong?"},
-            {typeof(float?), "float?"},
-            {typeof(double?), "double?"},
-            {typeof(decimal?), "decimal?"},
-            {typeof(bool?), "bool?"},
-            {typeof(char?), "char?"}
-        };
     }
 }
