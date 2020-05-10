@@ -11,6 +11,9 @@ namespace DebugMenu
 
         public static readonly ISetting EnableKey = new Setting<string>("DEBUG_MENU_SETTINGS_ENABLE_KEY", "Enable Key", "F3");
 
+        private static Color backgroundColor = Color.gray;
+        private static Color textColor = Color.white;
+        
         [SettingsProvider]
         public static SettingsProvider GetDebugMenuSettings()
         {
@@ -19,10 +22,18 @@ namespace DebugMenu
                 label = Name,
                 guiHandler = searchContent =>
                 {
+                    EditorGUILayout.LabelField("General", EditorStyles.boldLabel);
+                    
                     EnableKey.Set(EditorGUILayout.TextField(EnableKey.DisplayName, (string)EnableKey.Get()));
 
                     EditorGUILayout.Space();
+                    EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
+                    
+                    backgroundColor = EditorGUILayout.ColorField("Menu Color", backgroundColor);
+                    textColor = EditorGUILayout.ColorField("Text Color", textColor);
 
+
+                    EditorGUILayout.Space();
                     if (GUILayout.Button("Restore Defaults"))
                     {
                         if (EditorUtility.DisplayDialog("Restore Defaults", "Are you sure you want to revert all settings to their default values?", "Yes", "No"))
@@ -32,6 +43,8 @@ namespace DebugMenu
                             {
                                 setting.Set(setting.DefaultValue);
                             }
+                            
+                            EditorGUI.FocusTextInControl(string.Empty);
                         }
                     }
                 },
