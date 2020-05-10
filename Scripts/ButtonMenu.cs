@@ -57,10 +57,11 @@ namespace DebugMenu
             foreach (Node node in nodeList)
             {
                 GameObject menuButton = Instantiate(menuButtonPrefab, transform, true);
-                menuButton.GetComponentInChildren<Text>().text = node.name;
 
                 var debugMenuButton = menuButton.GetComponent<DebugMenuButton>();
                 debugMenuButton.node = node;
+                debugMenuButton.text.text = node.name;
+                debugMenuButton.text.color = (Color)Settings.TextColor.Get();
 
                 buttons.Add(debugMenuButton);
             }

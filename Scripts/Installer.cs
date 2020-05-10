@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
@@ -19,7 +18,11 @@ namespace DebugMenu
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (FindObjectOfType<EventSystem>() == null)
-                EditorApplication.ExecuteMenuItem("GameObject/UI/Event System");
+            {
+                var eventSystemObject = new GameObject();
+                eventSystemObject.AddComponent<EventSystem>();
+                eventSystemObject.AddComponent<StandaloneInputModule>();
+            }
 
             foreach (var item in FindObjectsOfType<DebugMenuManager>())
             {

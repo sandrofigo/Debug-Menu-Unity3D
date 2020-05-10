@@ -1,6 +1,8 @@
 ﻿//
 // Copyright (c) Sandro Figo
 //
+
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +18,8 @@ namespace DebugMenu
 
         [HideInInspector]
         public Node node;
+        
+        public Text text;
 
         public void OnClick()
         {
