@@ -40,7 +40,7 @@ namespace DebugMenu
                     RectTransform panel = Instantiate(panelPrefab, DebugMenuManager.Instance.transform).GetComponent<RectTransform>();
                     panel.SetParent(DebugMenuManager.Instance.transform);
                     var itemPanel = panel.GetComponent<DebugMenuItemPanel>();
-                    itemPanel.image.color = (Color)Settings.BackgroundColor.Get();
+                    itemPanel.image.color = Settings.BackgroundColor;
 
                     ButtonMenu.Instance.openPanels.Add(panel);
 
@@ -55,8 +55,8 @@ namespace DebugMenu
                         DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
                         m.node = n;
                         m.text.text = n.name;
-                        m.text.color = (Color)Settings.TextColor.Get();
-                        m.arrowText.color = (Color)Settings.TextColor.Get();
+                        m.text.color = Settings.TextColor;
+                        m.arrowText.color = Settings.TextColor;
                         if (n.children.Count > 0)
                         {
                             m.arrow.gameObject.SetActive(true);

@@ -19,13 +19,13 @@ namespace DebugMenu
                 {
                     EditorGUILayout.LabelField("General", EditorStyles.boldLabel);
                     
-                    Settings.EnableKey.Set(EditorGUILayout.TextField(Settings.EnableKey.DisplayName, (string)Settings.EnableKey.Get()));
+                    Settings.EnableKey = EditorGUILayout.TextField(Settings.EnableKeySetting.DisplayName, Settings.EnableKey);
                     
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
 
-                    Settings.BackgroundColor.Set(EditorGUILayout.ColorField(Settings.BackgroundColor.DisplayName, (Color)Settings.BackgroundColor.Get()));
-                    Settings.TextColor.Set(EditorGUILayout.ColorField(Settings.TextColor.DisplayName, (Color)Settings.TextColor.Get()));
+                    Settings.BackgroundColor = EditorGUILayout.ColorField(Settings.BackgroundColorSetting.DisplayName, Settings.BackgroundColor);
+                    Settings.TextColor = EditorGUILayout.ColorField(Settings.TextColorSetting.DisplayName, Settings.TextColor);
 
                     EditorGUILayout.Space();
                     if (GUILayout.Button("Restore Defaults"))

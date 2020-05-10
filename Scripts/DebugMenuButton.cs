@@ -41,7 +41,7 @@ namespace DebugMenu
 
                 DebugMenuItemPanel p = panel.GetComponent<DebugMenuItemPanel>();
                 p.button = this;
-                p.image.color = (Color)Settings.BackgroundColor.Get();
+                p.image.color = Settings.BackgroundColor;
 
                 foreach (var childNode in node.children)
                 {
@@ -50,8 +50,8 @@ namespace DebugMenu
                     DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
                     m.node = childNode;
                     m.text.text = childNode.name;
-                    m.text.color = (Color)Settings.TextColor.Get();
-                    m.arrowText.color = (Color)Settings.TextColor.Get();
+                    m.text.color = Settings.TextColor;
+                    m.arrowText.color = Settings.TextColor;
                     if (childNode.children.Count > 0)
                         m.arrow.gameObject.SetActive(true);
                 }
