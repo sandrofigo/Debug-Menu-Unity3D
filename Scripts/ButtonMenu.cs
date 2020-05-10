@@ -62,6 +62,7 @@ namespace DebugMenu
                 debugMenuButton.node = node;
                 debugMenuButton.text.text = node.name;
                 debugMenuButton.text.color = (Color)Settings.TextColor.Get();
+                debugMenuButton.image.color = (Color)Settings.BackgroundColor.Get();
 
                 buttons.Add(debugMenuButton);
             }

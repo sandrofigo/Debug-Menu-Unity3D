@@ -18,6 +18,8 @@ namespace DebugMenu
 
         [HideInInspector]
         public Node node;
+
+        public Image image;
         
         public Text text;
 
@@ -39,14 +41,17 @@ namespace DebugMenu
 
                 DebugMenuItemPanel p = panel.GetComponent<DebugMenuItemPanel>();
                 p.button = this;
+                p.image.color = (Color)Settings.BackgroundColor.Get();
 
                 foreach (var childNode in node.children)
                 {
                     RectTransform menuItem = Instantiate(menuItemPrefab).GetComponent<RectTransform>();
                     menuItem.SetParent(panel);
-                    menuItem.GetComponentInChildren<Text>().text = childNode.name;
                     DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
                     m.node = childNode;
+                    m.text.text = childNode.name;
+                    m.text.color = (Color)Settings.TextColor.Get();
+                    m.arrowText.color = (Color)Settings.TextColor.Get();
                     if (childNode.children.Count > 0)
                         m.arrow.gameObject.SetActive(true);
                 }

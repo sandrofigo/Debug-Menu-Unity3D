@@ -21,6 +21,10 @@ namespace DebugMenu
         [HideInInspector]
         public bool panelOpen;
 
+        public Text arrowText;
+        
+        public Text text;
+        
         private void Start()
         {
             rectTransform = GetComponent<RectTransform>();

@@ -189,6 +189,7 @@ MonoBehaviour:
   menuItemPrefab: {fileID: 1942133913457296, guid: 57a7a423bcdebb7449557df9b044d398,
     type: 3}
   panelOpen: 0
+  image: {fileID: 114657770021138628}
   text: {fileID: 114752327505342778}
 --- !u!1 &1938269452402344
 GameObject:

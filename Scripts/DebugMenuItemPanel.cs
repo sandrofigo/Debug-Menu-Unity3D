@@ -3,6 +3,7 @@
 //
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace DebugMenu
 {
@@ -11,6 +12,8 @@ namespace DebugMenu
         [HideInInspector]
         public DebugMenuButton button;
 
+        public Image image;
+        
         private void Update()
         {
             if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
