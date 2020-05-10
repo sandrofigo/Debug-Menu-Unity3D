@@ -25,8 +25,9 @@ namespace DebugMenu
             for (int i = openPanels.Count - 1; i >= 0; i--)
             {
                 Destroy(openPanels[i].gameObject);
-                openPanels.Remove(openPanels[i]);
             }
+            
+            openPanels.Clear();
         }
 
         public void ResetAllMenuButtons()
@@ -54,6 +55,24 @@ namespace DebugMenu
 
                 buttons.Add(debugMenuButton);
             }
+        }
+
+        public RectTransform CreateMenuPanel(Node node)
+        {
+            var panel = Instantiate(panelPrefab, DebugMenuManager.Instance.transform).GetComponent<RectTransform>();
+            panel.SetParent(DebugMenuManager.Instance.transform);
+
+            openPanels.Add(panel);
+                    
+            var itemPanel = panel.GetComponent<DebugMenuItemPanel>();
+            itemPanel.image.color = Settings.BackgroundColor;
+
+            foreach (Node childNode in node.children)
+            {
+                itemPanel.CreateItem(childNode);
+            }
+
+            return panel;
         }
     }
 }

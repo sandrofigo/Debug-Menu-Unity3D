@@ -44,17 +44,12 @@ namespace DebugMenu
             VisibilityChanged?.Invoke(Visible);
         }
 
-        protected override void Awake()
+        private void Start()
         {
-            base.Awake();
-            
             outputText = transform.Find("Console Panel/Output Text").GetComponent<Text>();
 
             consolePanel.gameObject.SetActive(false);
-        }
-
-        private void Start()
-        {
+            
             var eventSystem = FindObjectOfType<EventSystem>();
 
             if (eventSystem == null)
@@ -107,7 +102,7 @@ namespace DebugMenu
             {
                 if (lastInvokedNode.method.GetParameters().Length == 0)
                 {
-                    object obj = lastInvokedNode.method.Invoke(lastInvokedNode.monoBehaviour, null);
+                    object returnValue = lastInvokedNode.method.Invoke(lastInvokedNode.monoBehaviour, null);
                 }
                 else
                 {
@@ -174,7 +169,7 @@ namespace DebugMenu
                     Log(inputField.text);
                     lastInvokedNode = node;
                     object obj = node.method.Invoke(node.monoBehaviour, parameters.ToArray());
-                    Log($"Return value: {obj ?? "null"}");
+                    Log($"Return value: {obj ?? "null"}\n");
                 }
                 else
                 {

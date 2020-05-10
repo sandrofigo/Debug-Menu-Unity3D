@@ -9,9 +9,6 @@ namespace DebugMenu
 {
     public class DebugMenuItemPanel : MonoBehaviour
     {
-        [HideInInspector]
-        public DebugMenuButton button;
-
         public Image image;
         
         private void Update()
@@ -26,7 +23,7 @@ namespace DebugMenu
         public void CreateItem(Node node)
         {
             DebugMenuItem item = Instantiate(ButtonMenu.Instance.itemPrefab);
-            item.Init(node, transform);
+            item.Initialize(node, transform);
         }
     }
 }

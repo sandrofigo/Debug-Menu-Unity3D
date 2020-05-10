@@ -19,7 +19,7 @@ namespace DebugMenu
         {
             if (FindObjectOfType<EventSystem>() == null)
             {
-                var eventSystemObject = new GameObject();
+                var eventSystemObject = new GameObject {name = "EventSystem"};
                 eventSystemObject.AddComponent<EventSystem>();
                 eventSystemObject.AddComponent<StandaloneInputModule>();
             }
