@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace DebugMenu
 {
-    public partial class DebugMenuSettingsProvider : Editor
+    public class DebugMenuSettingsProvider : Editor
     {
         private const string Name = "Debug Menu";
 
@@ -22,7 +22,7 @@ namespace DebugMenu
                     EnableKey.Set(EditorGUILayout.TextField(EnableKey.DisplayName, (string)EnableKey.Get()));
 
                     EditorGUILayout.Space();
-                    
+
                     if (GUILayout.Button("Restore Defaults"))
                     {
                         if (EditorUtility.DisplayDialog("Restore Defaults", "Are you sure you want to revert all settings to their default values?", "Yes", "No"))
