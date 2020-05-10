@@ -9,10 +9,9 @@ namespace DebugMenu
     {
         private const string Name = "Debug Menu";
 
-        public static readonly ISetting EnableKey = new Setting<string>("DEBUG_MENU_SETTINGS_ENABLE_KEY", "Enable Key", "F3");
-
-        private static Color backgroundColor = Color.gray;
-        private static Color textColor = Color.white;
+        public static readonly ISetting EnableKey = new Setting("DEBUG_MENU_SETTINGS_ENABLE_KEY", "Enable Key", "F3");
+        public static readonly ISetting BackgroundColor = new Setting("DEBUG_MENU_SETTINGS_BACKGROUND_COLOR", "Background Color", Color.gray);
+        public static readonly ISetting TextColor = new Setting("DEBUG_MENU_SETTINGS_TEXT_COLOR", "Text Color", Color.white);
         
         [SettingsProvider]
         public static SettingsProvider GetDebugMenuSettings()
@@ -25,13 +24,12 @@ namespace DebugMenu
                     EditorGUILayout.LabelField("General", EditorStyles.boldLabel);
                     
                     EnableKey.Set(EditorGUILayout.TextField(EnableKey.DisplayName, (string)EnableKey.Get()));
-
+                    
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
-                    
-                    backgroundColor = EditorGUILayout.ColorField("Menu Color", backgroundColor);
-                    textColor = EditorGUILayout.ColorField("Text Color", textColor);
 
+                    BackgroundColor.Set(EditorGUILayout.ColorField(BackgroundColor.DisplayName, (Color)BackgroundColor.Get()));
+                    TextColor.Set(EditorGUILayout.ColorField(TextColor.DisplayName, (Color)TextColor.Get()));
 
                     EditorGUILayout.Space();
                     if (GUILayout.Button("Restore Defaults"))

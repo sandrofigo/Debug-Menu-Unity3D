@@ -1,15 +1,17 @@
 using System;
 using UnityEditor;
+using UnityEngine;
 
 namespace DebugMenu
 {
-    internal class Setting<T> : ISetting
+    internal class Setting : ISetting
     {
         public string Key { get; }
         public string DisplayName { get; }
 
         public object DefaultValue { get; }
 
+        /// <remarks>The type that is used to store the data is inferred from <paramref name="defaultValue"/>.</remarks>
         public Setting(string key, string displayName, object defaultValue)
         {
             Key = key;
@@ -33,6 +35,9 @@ namespace DebugMenu
                 case float v:
                     EditorPrefs.SetFloat(Key, v);
                     break;
+                case Color v:
+                    EditorPrefs.SetString(Key, v.Serialize());
+                    break;
                 default:
                     throw new Exception($"The provided type {value.GetType().FullName} is not supported!");
             }
@@ -40,19 +45,21 @@ namespace DebugMenu
 
         public object Get()
         {
-            if (typeof(T) == typeof(string))
-                return EditorPrefs.GetString(Key, (string)DefaultValue);
-
-            if (typeof(T) == typeof(bool))
-                return EditorPrefs.GetBool(Key, (bool)DefaultValue);
-
-            if (typeof(T) == typeof(int))
-                return EditorPrefs.GetInt(Key, (int)DefaultValue);
-
-            if (typeof(T) == typeof(float))
-                return EditorPrefs.GetFloat(Key, (float)DefaultValue);
-
-            throw new Exception($"The provided type {typeof(T).FullName} is not supported!");
+            switch (DefaultValue)
+            {
+                case string s:
+                    return EditorPrefs.GetString(Key, s);
+                case bool b:
+                    return EditorPrefs.GetBool(Key, b);
+                case int i:
+                    return EditorPrefs.GetInt(Key, i);
+                case float f:
+                    return EditorPrefs.GetFloat(Key, f);
+                case Color color:
+                    return ColorExtension.Deserialize(EditorPrefs.GetString(Key, color.Serialize()));
+                default:
+                    throw new Exception($"The provided type {DefaultValue.GetType().FullName} is not supported!");
+            }
         }
     }
 }
