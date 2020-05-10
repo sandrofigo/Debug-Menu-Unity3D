@@ -50,7 +50,7 @@ namespace DebugMenu
 
         private static IEnumerable<ISetting> GetDefinedSettings()
         {
-            foreach (FieldInfo info in typeof(DebugMenuSettingsProvider).GetFields(BindingFlags.Public | BindingFlags.Static))
+            foreach (FieldInfo info in typeof(Settings).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 if (info.FieldType == typeof(ISetting))
                     yield return (ISetting)info.GetValue(null);
