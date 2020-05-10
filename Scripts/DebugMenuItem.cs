@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Sandro Figo
 //
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,9 +23,9 @@ namespace DebugMenu
         public bool panelOpen;
 
         public Text arrowText;
-        
+
         public Text text;
-        
+
         private void Start()
         {
             rectTransform = GetComponent<RectTransform>();
@@ -38,6 +39,8 @@ namespace DebugMenu
                 {
                     RectTransform panel = Instantiate(panelPrefab, DebugMenuManager.Instance.transform).GetComponent<RectTransform>();
                     panel.SetParent(DebugMenuManager.Instance.transform);
+                    var itemPanel = panel.GetComponent<DebugMenuItemPanel>();
+                    itemPanel.image.color = (Color)Settings.BackgroundColor.Get();
 
                     ButtonMenu.Instance.openPanels.Add(panel);
 
@@ -49,9 +52,11 @@ namespace DebugMenu
                     {
                         RectTransform menuItem = Instantiate(menuItemPrefab).GetComponent<RectTransform>();
                         menuItem.SetParent(panel);
-                        menuItem.GetComponentInChildren<Text>().text = n.name;
                         DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
                         m.node = n;
+                        m.text.text = n.name;
+                        m.text.color = (Color)Settings.TextColor.Get();
+                        m.arrowText.color = (Color)Settings.TextColor.Get();
                         if (n.children.Count > 0)
                         {
                             m.arrow.gameObject.SetActive(true);
@@ -71,7 +76,7 @@ namespace DebugMenu
             {
                 DebugMenuManager.Log(node.name);
                 DebugMenuManager.Instance.lastInvokedNode = node;
-                
+
                 if (node.method.GetParameters().Length == 0)
                 {
                     object obj = node.method.Invoke(node.monoBehaviour, null);
@@ -80,11 +85,11 @@ namespace DebugMenu
                 }
                 else
                 {
-                    object obj = node.method.Invoke(node.monoBehaviour, new []{node.debugMethod.parameters[0]});
+                    object obj = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.parameters[0]});
                     if (obj != null)
                         DebugMenuManager.Log($"Return value: {obj}\n");
                 }
-                
+
                 ButtonMenu.Instance.ResetAllMenuButtons();
                 ButtonMenu.Instance.DestroyAllOpenPanels();
             }
