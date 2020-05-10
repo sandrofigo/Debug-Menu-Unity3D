@@ -9,9 +9,6 @@ namespace DebugMenu
 {
     public class DebugMenuItem : MonoBehaviour
     {
-        public RectTransform panelPrefab;
-        public RectTransform menuItemPrefab;
-
         [HideInInspector]
         public Node node;
 
@@ -37,7 +34,7 @@ namespace DebugMenu
             {
                 if (!panelOpen)
                 {
-                    RectTransform panel = Instantiate(panelPrefab, DebugMenuManager.Instance.transform).GetComponent<RectTransform>();
+                    RectTransform panel = Instantiate(ButtonMenu.Instance.panelPrefab, DebugMenuManager.Instance.transform).GetComponent<RectTransform>();
                     panel.SetParent(DebugMenuManager.Instance.transform);
                     var itemPanel = panel.GetComponent<DebugMenuItemPanel>();
                     itemPanel.image.color = Settings.BackgroundColor;
@@ -50,7 +47,7 @@ namespace DebugMenu
 
                     foreach (var n in node.children)
                     {
-                        RectTransform menuItem = Instantiate(menuItemPrefab).GetComponent<RectTransform>();
+                        RectTransform menuItem = Instantiate(ButtonMenu.Instance.itemPrefab).GetComponent<RectTransform>();
                         menuItem.SetParent(panel);
                         DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
                         m.node = n;
@@ -93,6 +90,19 @@ namespace DebugMenu
                 ButtonMenu.Instance.ResetAllMenuButtons();
                 ButtonMenu.Instance.DestroyAllOpenPanels();
             }
+        }
+
+        public void Init(Node n, Transform parent)
+        {
+            node = n;
+            text.text = n.name;
+            text.color = Settings.TextColor;
+            arrowText.color = Settings.TextColor;
+            
+            transform.SetParent(parent);
+            
+            if (node.HasChildren())
+                arrow.gameObject.SetActive(true);
         }
     }
 }

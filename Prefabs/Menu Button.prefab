@@ -10,11 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 224461552003730822}
   - component: {fileID: 222351564689757406}
+  - component: {fileID: 114861292653536164}
   - component: {fileID: 114657770021138628}
   - component: {fileID: 114179150669436550}
   - component: {fileID: 114580801108331530}
   - component: {fileID: 114961080109047780}
-  - component: {fileID: 114861292653536164}
   m_Layer: 5
   m_Name: Menu Button
   m_TagString: Untagged
@@ -50,6 +50,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1221920742029930}
   m_CullTransparentMesh: 0
+--- !u!114 &114861292653536164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1221920742029930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caaf62a0f1df0e540991c3e083a74127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelOpen: 0
+  image: {fileID: 114657770021138628}
+  text: {fileID: 114752327505342778}
 --- !u!114 &114657770021138628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,25 +187,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
---- !u!114 &114861292653536164
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1221920742029930}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: caaf62a0f1df0e540991c3e083a74127, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  menuDropdownPrefab: {fileID: 1639421664639098, guid: eb3bf8a347a017c4ab1fa88249c0724e,
-    type: 3}
-  menuItemPrefab: {fileID: 1942133913457296, guid: 57a7a423bcdebb7449557df9b044d398,
-    type: 3}
-  panelOpen: 0
-  image: {fileID: 114657770021138628}
-  text: {fileID: 114752327505342778}
 --- !u!1 &1938269452402344
 GameObject:
   m_ObjectHideFlags: 0

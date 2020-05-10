@@ -379,6 +379,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuButtonPrefab: {fileID: 1221920742029930, guid: 38aa0f26fdfccd441862ce723a5571ba,
     type: 3}
+  panelPrefab: {fileID: 114145111963340126, guid: eb3bf8a347a017c4ab1fa88249c0724e,
+    type: 3}
+  itemPrefab: {fileID: 114715741111500008, guid: 57a7a423bcdebb7449557df9b044d398,
+    type: 3}
   buttons: []
   openPanels: []
 --- !u!1 &1467860612813810

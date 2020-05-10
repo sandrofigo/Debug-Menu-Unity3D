@@ -208,12 +208,12 @@ GameObject:
   m_Component:
   - component: {fileID: 224663060153641774}
   - component: {fileID: 222809138975712860}
+  - component: {fileID: 114715741111500008}
   - component: {fileID: 114524415667486006}
   - component: {fileID: 114896913743747812}
   - component: {fileID: 114508797401919884}
   - component: {fileID: 114176254919988852}
   - component: {fileID: 114817042998043296}
-  - component: {fileID: 114715741111500008}
   m_Layer: 5
   m_Name: Menu Item
   m_TagString: Untagged
@@ -250,6 +250,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1942133913457296}
   m_CullTransparentMesh: 0
+--- !u!114 &114715741111500008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942133913457296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acd890187c9c36b41a4a8776e401eb8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrow: {fileID: 224150442601161116}
+  panelOpen: 0
+  arrowText: {fileID: 114785843692890720}
+  text: {fileID: 114977371019923050}
 --- !u!114 &114524415667486006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,22 +408,3 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!114 &114715741111500008
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1942133913457296}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acd890187c9c36b41a4a8776e401eb8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelPrefab: {fileID: 224800670178720350, guid: eb3bf8a347a017c4ab1fa88249c0724e,
-    type: 3}
-  menuItemPrefab: {fileID: 224663060153641774}
-  arrow: {fileID: 224150442601161116}
-  panelOpen: 0
-  arrowText: {fileID: 114785843692890720}
-  text: {fileID: 114977371019923050}

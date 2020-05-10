@@ -2,7 +2,6 @@
 // Copyright (c) Sandro Figo
 //
 
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,9 +9,6 @@ namespace DebugMenu
 {
     public class DebugMenuButton : MonoBehaviour
     {
-        public GameObject menuDropdownPrefab;
-        public GameObject menuItemPrefab;
-
         [HideInInspector]
         public bool panelOpen;
 
@@ -32,7 +28,7 @@ namespace DebugMenu
 
                 RectTransform rectTransform = GetComponent<RectTransform>();
 
-                RectTransform panel = Instantiate(menuDropdownPrefab).GetComponent<RectTransform>();
+                RectTransform panel = Instantiate(ButtonMenu.Instance.panelPrefab).GetComponent<RectTransform>();
                 panel.transform.SetParent(DebugMenuManager.Instance.transform);
 
                 ButtonMenu.Instance.openPanels.Add(panel);
@@ -43,17 +39,9 @@ namespace DebugMenu
                 p.button = this;
                 p.image.color = Settings.BackgroundColor;
 
-                foreach (var childNode in node.children)
+                foreach (Node childNode in node.children)
                 {
-                    RectTransform menuItem = Instantiate(menuItemPrefab).GetComponent<RectTransform>();
-                    menuItem.SetParent(panel);
-                    DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
-                    m.node = childNode;
-                    m.text.text = childNode.name;
-                    m.text.color = Settings.TextColor;
-                    m.arrowText.color = Settings.TextColor;
-                    if (childNode.children.Count > 0)
-                        m.arrow.gameObject.SetActive(true);
+                    p.CreateItem(childNode);
                 }
 
                 panelOpen = true;

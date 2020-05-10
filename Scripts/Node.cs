@@ -2,6 +2,7 @@
 // Copyright (c) Sandro Figo
 //
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -32,5 +33,7 @@ namespace DebugMenu
         public string name;
 
         public DebugMethod debugMethod;
+
+        public bool HasChildren() => children.Any();
     }
 }

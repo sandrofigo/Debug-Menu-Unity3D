@@ -14,6 +14,9 @@ namespace DebugMenu
         [SerializeField]
         private GameObject menuButtonPrefab = null;
 
+        public DebugMenuItemPanel panelPrefab;
+        public DebugMenuItem itemPrefab;
+        
         public List<DebugMenuButton> buttons = new List<DebugMenuButton>();
         public List<RectTransform> openPanels = new List<RectTransform>();
 

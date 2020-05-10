@@ -22,5 +22,11 @@ namespace DebugMenu
                 ButtonMenu.Instance.ResetAllMenuButtons();
             }
         }
+
+        public void CreateItem(Node node)
+        {
+            DebugMenuItem item = Instantiate(ButtonMenu.Instance.itemPrefab);
+            item.Init(node, transform);
+        }
     }
 }
