@@ -1,6 +1,9 @@
 using System;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+
+#endif
 
 namespace DebugMenu
 {
@@ -21,6 +24,7 @@ namespace DebugMenu
 
         public void Set(object value)
         {
+#if UNITY_EDITOR
             switch (value)
             {
                 case string v:
@@ -41,10 +45,12 @@ namespace DebugMenu
                 default:
                     throw new Exception($"The provided type {value.GetType().FullName} is not supported!");
             }
+#endif
         }
 
         public object Get()
         {
+#if UNITY_EDITOR
             switch (DefaultValue)
             {
                 case string s:
@@ -60,6 +66,9 @@ namespace DebugMenu
                 default:
                     throw new Exception($"The provided type {DefaultValue.GetType().FullName} is not supported!");
             }
+#else
+            return DefaultValue;
+#endif
         }
     }
 }
