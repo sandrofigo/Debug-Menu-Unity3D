@@ -384,6 +384,41 @@ namespace DebugMenu
                     if (method == null)
                         continue;
 
+                    if (method.parameters != null)
+                    {
+                        foreach (object parameter in method.parameters)
+                        {
+                            Node childNode = new Node
+                            {
+                                name = info.Name + parameter,
+                                method = info,
+                                monoBehaviour = data.monoBehaviour,
+                                debugMethod = method
+                            };
+
+                            string baseNodeName = info.DeclaringType.ToString();
+
+                            Node baseNode = GetNode(nodes, baseNodeName);
+
+                            if (baseNode != null)
+                            {
+                                // Base node exists
+                                baseNode.children.Add(childNode);
+                            }
+                            else
+                            {
+                                // Base node doesn't exist
+                                baseNode = new Node
+                                {
+                                    name = info.DeclaringType.ToString()
+                                };
+                                baseNode.children.Add(childNode);
+
+                                nodes.Add(baseNode);
+                            }
+                        }
+                    }
+                    
                     // Custom path
                     if (method.customPath != string.Empty)
                     {
@@ -412,7 +447,8 @@ namespace DebugMenu
                                 {
                                     name = info.Name,
                                     method = info,
-                                    monoBehaviour = data.monoBehaviour
+                                    monoBehaviour = data.monoBehaviour,
+                                    debugMethod = method
                                 };
                                 n.children.Add(finalNode);
                             }
@@ -424,7 +460,8 @@ namespace DebugMenu
                         {
                             name = info.Name,
                             method = info,
-                            monoBehaviour = data.monoBehaviour
+                            monoBehaviour = data.monoBehaviour,
+                            debugMethod = method
                         };
 
                         string baseNodeName = info.DeclaringType.ToString();
@@ -485,7 +522,7 @@ namespace DebugMenu
         /// </summary>
         /// <param name="method"></param>
         /// <returns></returns>
-        private DebugMethod GetDebugMethod(MethodInfo method)
+        public DebugMethod GetDebugMethod(MethodInfo method)
         {
             return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) as DebugMethod;
         }

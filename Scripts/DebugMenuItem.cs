@@ -65,19 +65,24 @@ namespace DebugMenu
             }
             else
             {
+                DebugMenuManager.Log(node.name);
+                DebugMenuManager.Instance.lastInvokedNode = node;
+                
                 if (node.method.GetParameters().Length == 0)
                 {
-                    DebugMenuManager.Log(node.name);
-                    DebugMenuManager.Instance.lastInvokedNode = node;
                     object obj = node.method.Invoke(node.monoBehaviour, null);
                     if (obj != null)
                         DebugMenuManager.Log($"Return value: {obj}\n");
-
-                    ButtonMenu.Instance.ResetAllMenuButtons();
-                    ButtonMenu.Instance.DestroyAllOpenPanels();
                 }
                 else
-                    Debug.LogWarning("Methods with parameters in the button menu are not supported yet!");
+                {
+                    object obj = node.method.Invoke(node.monoBehaviour, new []{node.debugMethod.parameters[0]});
+                    if (obj != null)
+                        DebugMenuManager.Log($"Return value: {obj}\n");
+                }
+                
+                ButtonMenu.Instance.ResetAllMenuButtons();
+                ButtonMenu.Instance.DestroyAllOpenPanels();
             }
         }
     }

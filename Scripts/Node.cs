@@ -30,5 +30,7 @@ namespace DebugMenu
         public readonly List<Node> children = new List<Node>();
 
         public string name;
+
+        public DebugMethod debugMethod;
     }
 }

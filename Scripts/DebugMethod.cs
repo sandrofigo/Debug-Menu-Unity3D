@@ -11,12 +11,19 @@ namespace DebugMenu
         public DebugMethod()
         {
         }
-
+        
         public DebugMethod(string customPath)
         {
             this.customPath = customPath;
         }
 
+        public DebugMethod(object[] parameters)
+        {
+            this.parameters = parameters;
+        }
+
         public string customPath = string.Empty;
+
+        public object[] parameters;
     }
 }
