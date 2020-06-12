@@ -8,15 +8,15 @@ namespace DebugMenu
     [AttributeUsage(AttributeTargets.Method)]
     public class DebugMethod : Attribute
     {
-        public DebugMethod(string customPath = "", object[] parameters = null)
+        public DebugMethod(string customPath = "", params object[] parameters)
         {
             if (!string.IsNullOrWhiteSpace(customPath))
                 this.customPath = customPath;
             
-            this.parameters = parameters;
+            this.parameters = parameters.Length == 0 ? null : parameters;
         }
 
-        public DebugMethod(object[] parameters) : this(string.Empty, parameters)
+        public DebugMethod(params object[] parameters) : this(string.Empty, parameters)
         {
         }
 
