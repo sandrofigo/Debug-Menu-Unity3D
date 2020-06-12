@@ -10,18 +10,6 @@ namespace DebugMenu
 {
     public class Node
     {
-        public Node()
-        {
-        }
-
-        public Node(MonoBehaviour monoBehaviour, MethodInfo method, List<Node> children, string name)
-        {
-            this.monoBehaviour = monoBehaviour;
-            this.method = method;
-            this.children = children;
-            this.name = name;
-        }
-
         public MonoBehaviour monoBehaviour;
 
         public MethodInfo method;
@@ -33,6 +21,8 @@ namespace DebugMenu
         public string name;
 
         public DebugMethod debugMethod;
+
+        public int parameterIndex = -1;
 
         public bool HasChildren() => children.Any();
     }

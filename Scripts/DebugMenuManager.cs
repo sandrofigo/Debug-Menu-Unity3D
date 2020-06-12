@@ -377,12 +377,13 @@ namespace DebugMenu
 
             public IEnumerable<Node> GetNodesForParameters()
             {
-                return DebugMethod.parameters.Select(parameter => new Node
+                return DebugMethod.parameters.Select((parameter, index) => new Node
                 {
                     name = $"{MethodInfo.Name} ({parameter})",
                     method = MethodInfo,
                     monoBehaviour = MethodData.monoBehaviour,
-                    debugMethod = DebugMethod
+                    debugMethod = DebugMethod,
+                    parameterIndex = index
                 });
             }
 

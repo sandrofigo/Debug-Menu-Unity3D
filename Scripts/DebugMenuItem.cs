@@ -76,7 +76,7 @@ namespace DebugMenu
             }
             else
             {
-                returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.parameters[0]});
+                returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.parameters[node.parameterIndex]});
             }
             
             DebugMenuManager.Log($"Return value: {returnValue ?? "null"}\n");
