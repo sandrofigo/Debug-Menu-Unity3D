@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -324,107 +323,7 @@ namespace DebugMenu
 
                     MethodContext context = new MethodContext(data, info, method, nodes);
 
-                    // Custom path
-                    if (context.HasCustomPath)
-                    {
-                        string[] split = method.customPath.Split('/');
-
-                        List<Node> currentNodeList = nodes;
-
-                        for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
-                        {
-                            Node baseNode = context.GetBaseNode(out bool alreadyExists, currentNodeList, split[splitIndex]);
-                            if (!alreadyExists)
-                                currentNodeList.Add(baseNode);
-
-                            currentNodeList = baseNode.children;
-
-                            if (splitIndex == split.Length - 1)
-                            {
-                                context.AttachFinalNodeTo(baseNode);
-                            }
-                        }
-                    }
-                    else // Type path
-                    {
-                        Node baseNode = context.GetBaseNode(out bool alreadyExists);
-                        if (!alreadyExists)
-                            nodes.Add(baseNode);
-
-                        context.AttachFinalNodeTo(baseNode);
-                    }
-                }
-            }
-        }
-
-        private class MethodContext
-        {
-            public MethodData MethodData { get; }
-
-            public MethodInfo MethodInfo { get; }
-
-            public DebugMethod DebugMethod { get; }
-
-            private readonly IEnumerable<Node> nodes;
-
-            public MethodContext(MethodData methodData, MethodInfo methodInfo, DebugMethod debugMethod, IEnumerable<Node> nodes)
-            {
-                MethodData = methodData;
-                MethodInfo = methodInfo;
-                DebugMethod = debugMethod;
-                this.nodes = nodes;
-            }
-
-            public IEnumerable<Node> GetNodesForParameters()
-            {
-                return DebugMethod.parameters.Select((parameter, index) => new Node
-                {
-                    name = $"{MethodInfo.Name} ({parameter})",
-                    method = MethodInfo,
-                    monoBehaviour = MethodData.monoBehaviour,
-                    debugMethod = DebugMethod,
-                    parameterIndex = index
-                });
-            }
-
-            public bool HasCustomPath => DebugMethod.customPath != string.Empty;
-
-            public bool HasParameters => DebugMethod.parameters != null;
-
-            public Node GetBaseNode(out bool alreadyExists, IEnumerable<Node> overrideNodeCollection, string overrideName)
-            {
-                string baseNodeName = overrideName ?? (MethodInfo.DeclaringType == null ? "null" : MethodInfo.DeclaringType.ToString());
-
-                Node baseNode = Helper.GetNodeByName(overrideNodeCollection ?? nodes, baseNodeName);
-
-                alreadyExists = baseNode != null;
-
-                return baseNode ?? new Node
-                {
-                    name = baseNodeName
-                };
-            }
-
-            public Node GetBaseNode(out bool alreadyExists) => GetBaseNode(out alreadyExists, null, null);
-
-            public Node GetFinalNode() =>
-                new Node
-                {
-                    name = MethodInfo.Name,
-                    method = MethodInfo,
-                    monoBehaviour = MethodData.monoBehaviour,
-                    debugMethod = DebugMethod
-                };
-
-            public void AttachFinalNodeTo(Node node)
-            {
-                if (HasParameters)
-                {
-                    node.children.AddRange(GetNodesForParameters());
-                }
-                else
-                {
-                    node.children.Add(GetFinalNode());
+                    context.CreateNodes();
                 }
             }
         }
