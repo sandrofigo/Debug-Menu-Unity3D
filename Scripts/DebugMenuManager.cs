@@ -328,72 +328,30 @@ namespace DebugMenu
                     if (context.HasCustomPath)
                     {
                         string[] split = method.customPath.Split('/');
-                        
+
                         List<Node> currentNodeList = nodes;
-                        
+
                         for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
                         {
-                            Node n = Helper.GetNodeByName(currentNodeList, split[splitIndex]);
-                        
-                            if (n == null)
-                            {
-                                n = new Node
-                                {
-                                    name = split[splitIndex]
-                                };
-                        
-                                currentNodeList.Add(n);
-                            }
-                        
-                            currentNodeList = n.children;
-                        
+                            Node baseNode = context.GetBaseNode(out bool alreadyExists, currentNodeList, split[splitIndex]);
+                            if (!alreadyExists)
+                                currentNodeList.Add(baseNode);
+
+                            currentNodeList = baseNode.children;
+
                             if (splitIndex == split.Length - 1)
                             {
-                                // End node
-                                if (context.HasParameters) // Construct nodes for parameters
-                                {
-                                    n.children.AddRange(context.GetNodesForParameters());
-                                }
-                                else
-                                {
-                                    Node finalNode = new Node
-                                    {
-                                        name = info.Name,
-                                        method = info,
-                                        monoBehaviour = data.monoBehaviour,
-                                        debugMethod = method
-                                    };
-                        
-                                    n.children.Add(finalNode);
-                                }
+                                context.AttachFinalNodeTo(baseNode);
                             }
                         }
                     }
                     else // Type path
                     {
                         Node baseNode = context.GetBaseNode(out bool alreadyExists);
-                        if(!alreadyExists)
+                        if (!alreadyExists)
                             nodes.Add(baseNode);
 
-                        if (context.HasParameters) // Construct nodes for parameters
-                        {
-                            foreach (Node node in context.GetNodesForParameters())
-                            {
-                                baseNode.children.Add(node);
-                            }
-                        }
-                        else
-                        {
-                            Node childNode = new Node
-                            {
-                                name = info.Name,
-                                method = info,
-                                monoBehaviour = data.monoBehaviour,
-                                debugMethod = method
-                            };
-
-                            baseNode.children.Add(childNode);
-                        }
+                        context.AttachFinalNodeTo(baseNode);
                     }
                 }
             }
@@ -407,7 +365,7 @@ namespace DebugMenu
 
             public DebugMethod DebugMethod { get; }
 
-            private IEnumerable<Node> nodes;
+            private readonly IEnumerable<Node> nodes;
 
             public MethodContext(MethodData methodData, MethodInfo methodInfo, DebugMethod debugMethod, IEnumerable<Node> nodes)
             {
@@ -432,18 +390,41 @@ namespace DebugMenu
 
             public bool HasParameters => DebugMethod.parameters != null;
 
-            public Node GetBaseNode(out bool alreadyExists)
+            public Node GetBaseNode(out bool alreadyExists, IEnumerable<Node> overrideNodeCollection, string overrideName)
             {
-                string baseNodeName = MethodInfo.DeclaringType.ToString();
+                string baseNodeName = overrideName ?? (MethodInfo.DeclaringType == null ? "null" : MethodInfo.DeclaringType.ToString());
 
-                Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
+                Node baseNode = Helper.GetNodeByName(overrideNodeCollection ?? nodes, baseNodeName);
 
                 alreadyExists = baseNode != null;
-                
+
                 return baseNode ?? new Node
                 {
                     name = baseNodeName
                 };
+            }
+
+            public Node GetBaseNode(out bool alreadyExists) => GetBaseNode(out alreadyExists, null, null);
+
+            public Node GetFinalNode() =>
+                new Node
+                {
+                    name = MethodInfo.Name,
+                    method = MethodInfo,
+                    monoBehaviour = MethodData.monoBehaviour,
+                    debugMethod = DebugMethod
+                };
+
+            public void AttachFinalNodeTo(Node node)
+            {
+                if (HasParameters)
+                {
+                    node.children.AddRange(GetNodesForParameters());
+                }
+                else
+                {
+                    node.children.Add(GetFinalNode());
+                }
             }
         }
     }
