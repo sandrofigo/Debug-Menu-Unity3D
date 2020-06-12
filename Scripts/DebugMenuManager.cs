@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -49,7 +50,7 @@ namespace DebugMenu
             outputText = transform.Find("Console Panel/Output Text").GetComponent<Text>();
 
             consolePanel.gameObject.SetActive(false);
-            
+
             var eventSystem = FindObjectOfType<EventSystem>();
 
             if (eventSystem == null)
@@ -321,94 +322,128 @@ namespace DebugMenu
                     if (method == null)
                         continue;
 
-                    if (method.parameters != null)
-                    {
-                        foreach (object parameter in method.parameters)
-                        {
-                            Node childNode = new Node
-                            {
-                                name = $"{info.Name} ({parameter})",
-                                method = info,
-                                monoBehaviour = data.monoBehaviour,
-                                debugMethod = method
-                            };
-
-                            AttachNode(info, childNode);
-                        }
-                    }
+                    MethodContext context = new MethodContext(data, info, method, nodes);
 
                     // Custom path
-                    if (method.customPath != string.Empty)
+                    if (context.HasCustomPath)
                     {
                         string[] split = method.customPath.Split('/');
-
+                        
                         List<Node> currentNodeList = nodes;
-
+                        
                         for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
                         {
                             Node n = Helper.GetNodeByName(currentNodeList, split[splitIndex]);
-
+                        
                             if (n == null)
                             {
                                 n = new Node
                                 {
                                     name = split[splitIndex]
                                 };
+                        
                                 currentNodeList.Add(n);
                             }
-
+                        
                             currentNodeList = n.children;
-
+                        
                             if (splitIndex == split.Length - 1)
                             {
-                                Node finalNode = new Node
+                                // End node
+                                if (context.HasParameters) // Construct nodes for parameters
                                 {
-                                    name = info.Name,
-                                    method = info,
-                                    monoBehaviour = data.monoBehaviour,
-                                    debugMethod = method
-                                };
-                                n.children.Add(finalNode);
+                                    n.children.AddRange(context.GetNodesForParameters());
+                                }
+                                else
+                                {
+                                    Node finalNode = new Node
+                                    {
+                                        name = info.Name,
+                                        method = info,
+                                        monoBehaviour = data.monoBehaviour,
+                                        debugMethod = method
+                                    };
+                        
+                                    n.children.Add(finalNode);
+                                }
                             }
                         }
                     }
                     else // Type path
                     {
-                        Node childNode = new Node
-                        {
-                            name = info.Name,
-                            method = info,
-                            monoBehaviour = data.monoBehaviour,
-                            debugMethod = method
-                        };
+                        Node baseNode = context.GetBaseNode(out bool alreadyExists);
+                        if(!alreadyExists)
+                            nodes.Add(baseNode);
 
-                        AttachNode(info, childNode);
+                        if (context.HasParameters) // Construct nodes for parameters
+                        {
+                            foreach (Node node in context.GetNodesForParameters())
+                            {
+                                baseNode.children.Add(node);
+                            }
+                        }
+                        else
+                        {
+                            Node childNode = new Node
+                            {
+                                name = info.Name,
+                                method = info,
+                                monoBehaviour = data.monoBehaviour,
+                                debugMethod = method
+                            };
+
+                            baseNode.children.Add(childNode);
+                        }
                     }
                 }
             }
         }
 
-        private void AttachNode(MethodInfo info, Node childNode)
+        private class MethodContext
         {
-            string baseNodeName = info.DeclaringType.ToString();
+            public MethodData MethodData { get; }
 
-            Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
+            public MethodInfo MethodInfo { get; }
 
-            if (baseNode != null)
+            public DebugMethod DebugMethod { get; }
+
+            private IEnumerable<Node> nodes;
+
+            public MethodContext(MethodData methodData, MethodInfo methodInfo, DebugMethod debugMethod, IEnumerable<Node> nodes)
             {
-                // Base node exists
-                baseNode.children.Add(childNode);
+                MethodData = methodData;
+                MethodInfo = methodInfo;
+                DebugMethod = debugMethod;
+                this.nodes = nodes;
             }
-            else
-            {
-                // Base node doesn't exist
-                baseNode = new Node
-                {
-                    name = info.DeclaringType.ToString()
-                };
-                baseNode.children.Add(childNode);
 
-                nodes.Add(baseNode);
+            public IEnumerable<Node> GetNodesForParameters()
+            {
+                return DebugMethod.parameters.Select(parameter => new Node
+                {
+                    name = $"{MethodInfo.Name} ({parameter})",
+                    method = MethodInfo,
+                    monoBehaviour = MethodData.monoBehaviour,
+                    debugMethod = DebugMethod
+                });
+            }
+
+            public bool HasCustomPath => DebugMethod.customPath != string.Empty;
+
+            public bool HasParameters => DebugMethod.parameters != null;
+
+            public Node GetBaseNode(out bool alreadyExists)
+            {
+                string baseNodeName = MethodInfo.DeclaringType.ToString();
+
+                Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
+
+                alreadyExists = baseNode != null;
+                
+                return baseNode ?? new Node
+                {
+                    name = baseNodeName
+                };
             }
         }
     }
