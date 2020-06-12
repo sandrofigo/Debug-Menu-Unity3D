@@ -327,32 +327,13 @@ namespace DebugMenu
                         {
                             Node childNode = new Node
                             {
-                                name = info.Name + parameter,
+                                name = $"{info.Name} ({parameter})",
                                 method = info,
                                 monoBehaviour = data.monoBehaviour,
                                 debugMethod = method
                             };
 
-                            string baseNodeName = info.DeclaringType.ToString();
-
-                            Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
-
-                            if (baseNode != null)
-                            {
-                                // Base node exists
-                                baseNode.children.Add(childNode);
-                            }
-                            else
-                            {
-                                // Base node doesn't exist
-                                baseNode = new Node
-                                {
-                                    name = info.DeclaringType.ToString()
-                                };
-                                baseNode.children.Add(childNode);
-
-                                nodes.Add(baseNode);
-                            }
+                            AttachNode(info, childNode);
                         }
                     }
 
@@ -401,28 +382,33 @@ namespace DebugMenu
                             debugMethod = method
                         };
 
-                        string baseNodeName = info.DeclaringType.ToString();
-
-                        Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
-
-                        if (baseNode != null)
-                        {
-                            // Base node exists
-                            baseNode.children.Add(childNode);
-                        }
-                        else
-                        {
-                            // Base node doesn't exist
-                            baseNode = new Node
-                            {
-                                name = info.DeclaringType.ToString()
-                            };
-                            baseNode.children.Add(childNode);
-
-                            nodes.Add(baseNode);
-                        }
+                        AttachNode(info, childNode);
                     }
                 }
+            }
+        }
+
+        private void AttachNode(MethodInfo info, Node childNode)
+        {
+            string baseNodeName = info.DeclaringType.ToString();
+
+            Node baseNode = Helper.GetNodeByName(nodes, baseNodeName);
+
+            if (baseNode != null)
+            {
+                // Base node exists
+                baseNode.children.Add(childNode);
+            }
+            else
+            {
+                // Base node doesn't exist
+                baseNode = new Node
+                {
+                    name = info.DeclaringType.ToString()
+                };
+                baseNode.children.Add(childNode);
+
+                nodes.Add(baseNode);
             }
         }
     }
