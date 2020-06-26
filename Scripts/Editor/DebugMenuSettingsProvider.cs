@@ -18,9 +18,10 @@ namespace DebugMenu
                 guiHandler = searchContent =>
                 {
                     EditorGUILayout.LabelField("General", EditorStyles.boldLabel);
-                    
+
                     Settings.EnableKey = EditorGUILayout.TextField(Settings.EnableKeySetting.GetGuiContent(), Settings.EnableKey);
-                    
+                    Settings.EnableInBuild = EditorGUILayout.Toggle(Settings.EnableInBuildSetting.GetGuiContent(), Settings.EnableInBuild);
+
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
 
@@ -31,7 +32,7 @@ namespace DebugMenu
                     
                     Settings.HideConsole = EditorGUILayout.Toggle(Settings.HideConsoleSetting.GetGuiContent(), Settings.HideConsole);
                     Settings.AutoClosePanels = EditorGUILayout.Toggle(Settings.AutoClosePanelsSetting.GetGuiContent(), Settings.AutoClosePanels);
-                    
+
                     EditorGUILayout.Space();
                     if (GUILayout.Button("Restore Defaults"))
                     {

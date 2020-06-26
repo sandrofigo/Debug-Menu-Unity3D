@@ -44,5 +44,13 @@ namespace DebugMenu
             set => AutoClosePanelsSetting.Set(value);
         }
         
+        public static readonly ISetting EnableInBuildSetting = new Setting("DEBUG_MENU_SETTINGS_ENABLE_IN_BUILD", "Enable In Build", true, "Defines if the debug menu should be enabled in a build.");
+        
+        public static bool EnableInBuild
+        {
+            get => (bool)EnableInBuildSetting.Get();
+            set => EnableInBuildSetting.Set(value);
+        }
+        
     }
 }
