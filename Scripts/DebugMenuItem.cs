@@ -80,9 +80,12 @@ namespace DebugMenu
             }
             
             DebugMenuManager.Log($"Return value: {returnValue ?? "null"}\n");
-            
-            ButtonMenu.Instance.ResetAllMenuButtons();
-            ButtonMenu.Instance.DestroyAllOpenPanels();
+
+            if (Settings.AutoClosePanels)
+            {
+                ButtonMenu.Instance.ResetAllMenuButtons();
+                ButtonMenu.Instance.DestroyAllOpenPanels();
+            }
         }
     }
 }

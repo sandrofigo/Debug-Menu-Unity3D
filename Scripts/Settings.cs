@@ -36,5 +36,13 @@ namespace DebugMenu
             set => HideConsoleSetting.Set(value);
         }
         
+        public static readonly ISetting AutoClosePanelsSetting = new Setting("DEBUG_MENU_SETTINGS_AUTO_CLOSE_PANELS", "Auto Close Panels", true);
+        
+        public static bool AutoClosePanels
+        {
+            get => (bool)AutoClosePanelsSetting.Get();
+            set => AutoClosePanelsSetting.Set(value);
+        }
+        
     }
 }

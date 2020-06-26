@@ -30,6 +30,7 @@ namespace DebugMenu
                     EditorGUILayout.Space();
                     
                     Settings.HideConsole = EditorGUILayout.Toggle(Settings.HideConsoleSetting.DisplayName, Settings.HideConsole);
+                    Settings.AutoClosePanels = EditorGUILayout.Toggle(Settings.AutoClosePanelsSetting.DisplayName, Settings.AutoClosePanels);
                     
                     EditorGUILayout.Space();
                     if (GUILayout.Button("Restore Defaults"))
