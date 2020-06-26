@@ -65,7 +65,7 @@ namespace DebugMenu
             {
                 var methodData = new MethodData();
                 
-                methodData.methods.AddRange(monoBehaviour.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public));
+                methodData.methods.AddRange(monoBehaviour.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
                 methodData.monoBehaviour = monoBehaviour;
 
                 if (methodData.methods.Count > 0 && usedTypes.Add(monoBehaviour.GetType()))
