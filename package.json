@@ -4,7 +4,7 @@
 	"displayName": "Debug Menu",
 	"license": "MIT",
 	"name": "com.sandrofigo.debug-menu-unity3d",
-	"version": "0.1.4",
+	"version": "0.2.0",
 	"dependencies": {
 	}
 }
