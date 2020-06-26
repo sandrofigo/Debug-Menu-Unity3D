@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
@@ -10,13 +9,20 @@ namespace DebugMenu
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void OnAfterSceneLoadRuntimeMethod()
         {
+            if (!Application.isEditor && !Settings.EnableInBuild)
+                return;
+
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             if (FindObjectOfType<EventSystem>() == null)
-                EditorApplication.ExecuteMenuItem("GameObject/UI/Event System");
+            {
+                var eventSystemObject = new GameObject {name = "EventSystem"};
+                eventSystemObject.AddComponent<EventSystem>();
+                eventSystemObject.AddComponent<StandaloneInputModule>();
+            }
 
             foreach (var item in FindObjectsOfType<DebugMenuManager>())
             {

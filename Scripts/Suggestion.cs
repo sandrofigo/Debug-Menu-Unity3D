@@ -5,10 +5,6 @@ namespace DebugMenu
 {
     public class Suggestion
     {
-        public Suggestion()
-        {
-        }
-
         public Suggestion(string path, string typeText, Node node)
         {
             this.path = path;

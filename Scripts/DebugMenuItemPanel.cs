@@ -3,14 +3,14 @@
 //
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace DebugMenu
 {
     public class DebugMenuItemPanel : MonoBehaviour
     {
-        [HideInInspector]
-        public DebugMenuButton button;
-
+        public Image image;
+        
         private void Update()
         {
             if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
@@ -18,6 +18,12 @@ namespace DebugMenu
                 ButtonMenu.Instance.DestroyAllOpenPanels();
                 ButtonMenu.Instance.ResetAllMenuButtons();
             }
+        }
+
+        public void CreateItem(Node node)
+        {
+            DebugMenuItem item = Instantiate(ButtonMenu.Instance.itemPrefab);
+            item.Initialize(node, transform);
         }
     }
 }

@@ -11,38 +11,31 @@ using UnityEngine.UI;
 
 namespace DebugMenu
 {
-    public class DebugMenuManager : MonoBehaviour
+    public class DebugMenuManager : Singleton<DebugMenuManager>
     {
-#pragma warning disable 0649
         [SerializeField]
-        private RectTransform consolePanel;
+        private RectTransform consolePanel = null;
 
         [SerializeField]
-        private RectTransform buttonMenu;
+        private RectTransform buttonMenu = null;
 
         [SerializeField]
-        private GameObject menuButtonPrefab;
+        private InputField inputField = null;
 
         [SerializeField]
-        private InputField inputField;
-
-        [SerializeField]
-        private Text suggestionsText;
-#pragma warning restore 0649
+        private Text suggestionsText = null;
 
         private static Text outputText;
 
-        private List<Node> nodes = new List<Node>();
-
-        private MethodData[] methodData;
+        private readonly List<Node> nodes = new List<Node>();
 
         private string lastMethod;
 
-        public static DebugMenuManager Instance { get; set; }
-
         public Node lastInvokedNode;
+        
+        private KeyCode enableKeyCode;
 
-        public bool Visible { get; set; }
+        private bool Visible { get; set; }
 
         public delegate void VisibilityHandler(bool visible);
 
@@ -53,25 +46,12 @@ namespace DebugMenu
             VisibilityChanged?.Invoke(Visible);
         }
 
-        private void Awake()
+        private void Start()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(this);
-                return;
-            }
-
             outputText = transform.Find("Console Panel/Output Text").GetComponent<Text>();
 
             consolePanel.gameObject.SetActive(false);
-        }
 
-        private void Start()
-        {
             var eventSystem = FindObjectOfType<EventSystem>();
 
             if (eventSystem == null)
@@ -85,39 +65,26 @@ namespace DebugMenu
 
             inputField.onValueChanged.AddListener(delegate { OnInputFieldChanged(); });
 
-            methodData = GetMethodData();
-
-            // Construct node tree
-            ConstructNodeTree();
+            ConstructNodeTree(Helper.GetMethodData());
 
             // Add menu buttons
-
-            nodes.Sort((node1, node2) => string.Compare(node1.name, node2.name, StringComparison.Ordinal));
-
-            foreach (var node in nodes)
-            {
-                GameObject menuButton = Instantiate(menuButtonPrefab, buttonMenu, true);
-                menuButton.GetComponentInChildren<Text>().text = node.name;
-
-                DebugMenuButton m = menuButton.GetComponent<DebugMenuButton>();
-                m.isRoot = true;
-                m.node = node;
-
-                ButtonMenu.Instance.buttons.Add(m);
-            }
+            ButtonMenu.Instance.CreateMenuButtons(nodes);
 
             // Prevent layout glitch
             LayoutRebuilder.ForceRebuildLayoutImmediate(buttonMenu);
             buttonMenu.gameObject.SetActive(false);
+
+            enableKeyCode = Helper.GetKeyCodeFromString(Settings.EnableKey);
         }
 
         private void Update()
         {
-            if ((Input.GetKeyDown(KeyCode.F1) || Input.GetKeyDown(KeyCode.F3)) && (Debug.isDebugBuild || Application.isEditor))
+            if (Input.GetKeyDown(enableKeyCode))
             {
                 Visible = !Visible;
 
-                consolePanel.gameObject.SetActive(!consolePanel.gameObject.activeInHierarchy);
+                if(!Settings.HideConsole)
+                    consolePanel.gameObject.SetActive(!consolePanel.gameObject.activeInHierarchy);
 
                 buttonMenu.gameObject.SetActive(!buttonMenu.gameObject.activeInHierarchy);
 
@@ -139,7 +106,7 @@ namespace DebugMenu
             {
                 if (lastInvokedNode.method.GetParameters().Length == 0)
                 {
-                    object obj = lastInvokedNode.method.Invoke(lastInvokedNode.monoBehaviour, null);
+                    object returnValue = lastInvokedNode.method.Invoke(lastInvokedNode.monoBehaviour, null);
                 }
                 else
                 {
@@ -153,7 +120,7 @@ namespace DebugMenu
                 {
                     string input = inputField.text;
 
-                    Suggestion[] suggestions = GetSuggestions(input);
+                    var suggestions = GetSuggestions(input);
 
                     if (suggestions.Length > 0)
                     {
@@ -181,13 +148,12 @@ namespace DebugMenu
 
                 string[] split = inputField.text.Split(' ');
 
-                Node node = FindNode(split[0]);
+                Node node = FindNodeByPath(split[0]);
 
                 if (node?.method != null)
                 {
                     // Valid method
-
-                    List<object> parameters = new List<object>();
+                    var parameters = new List<object>();
 
                     var parameterTypes = node.method.GetParameters();
 
@@ -195,7 +161,7 @@ namespace DebugMenu
                     {
                         try
                         {
-                            var x = Convert.ChangeType(split[i], parameterTypes[i - 1].ParameterType);
+                            object x = Convert.ChangeType(split[i], parameterTypes[i - 1].ParameterType);
                             parameters.Add(x);
                         }
                         catch (Exception e)
@@ -207,10 +173,7 @@ namespace DebugMenu
                     Log(inputField.text);
                     lastInvokedNode = node;
                     object obj = node.method.Invoke(node.monoBehaviour, parameters.ToArray());
-                    if (obj == null)
-                        Log("Return value: null\n");
-                    else
-                        Log($"Return value: {obj}\n");
+                    Log($"Return value: {obj ?? "null"}\n");
                 }
                 else
                 {
@@ -252,13 +215,13 @@ namespace DebugMenu
 
             string parentPath = path.Substring(0, lastSeparatorIndex);
 
-            Node lastCompleteNode = FindNode(parentPath);
+            Node lastCompleteNode = FindNodeByPath(parentPath);
 
             List<Node> currentNodes = new List<Node>();
 
             if (lastCompleteNode == null)
             {
-                // Only use the whole node tree if there is no separator ('.') present
+                // Use the whole node tree if there is no separator ('.') present
                 if (!path.Contains("."))
                     currentNodes = nodes;
             }
@@ -267,7 +230,7 @@ namespace DebugMenu
                 currentNodes = lastCompleteNode.children;
             }
 
-            foreach (var node in currentNodes)
+            foreach (Node node in currentNodes)
             {
                 if (node.name.StartsWith(split[split.Length - 1], StringComparison.OrdinalIgnoreCase))
                 {
@@ -284,7 +247,7 @@ namespace DebugMenu
 
                             for (int i = 0; i < parameters.Length; i++)
                             {
-                                typeText += TypeAliases[parameters[i].ParameterType];
+                                typeText += Helper.TypeAliases[parameters[i].ParameterType];
                                 if (i < parameters.Length - 1)
                                     typeText += ", ";
                             }
@@ -320,15 +283,15 @@ namespace DebugMenu
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        private Node FindNode(string path)
+        private Node FindNodeByPath(string path)
         {
             string[] split = path.Split('.');
 
-            List<Node> currentNodes = nodes;
+            var currentNodes = nodes;
 
             for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
             {
-                foreach (var node in currentNodes)
+                foreach (Node node in currentNodes)
                 {
                     if (node.name == split[splitIndex])
                     {
@@ -351,205 +314,22 @@ namespace DebugMenu
             return null;
         }
 
-        private Node GetNode(List<Node> nodeCollection, string nodeName)
-        {
-            foreach (Node node in nodeCollection)
-            {
-                if (node.name == nodeName)
-                    return node;
-            }
-
-            return null;
-        }
-
-        private bool NodeExists(string nodeName)
-        {
-            bool exists = false;
-            foreach (Node node in nodes)
-            {
-                exists = node.name == nodeName;
-            }
-
-            return exists;
-        }
-
-        private void ConstructNodeTree()
+        private void ConstructNodeTree(IEnumerable<MethodData> methodData)
         {
             foreach (MethodData data in methodData)
             {
                 foreach (MethodInfo info in data.methods)
                 {
-                    DebugMethod method = GetDebugMethod(info);
+                    DebugMethod method = Helper.GetDebugMethod(info);
 
                     if (method == null)
                         continue;
 
-                    // Custom path
-                    if (method.customPath != string.Empty)
-                    {
-                        string[] split = method.customPath.Split('/');
+                    MethodContext context = new MethodContext(data, info, method, nodes);
 
-                        List<Node> currentNodeList = nodes;
-
-                        for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
-                        {
-                            Node n = GetNode(currentNodeList, split[splitIndex]);
-
-                            if (n == null)
-                            {
-                                n = new Node
-                                {
-                                    name = split[splitIndex]
-                                };
-                                currentNodeList.Add(n);
-                            }
-
-                            currentNodeList = n.children;
-
-                            if (splitIndex == split.Length - 1)
-                            {
-                                Node finalNode = new Node
-                                {
-                                    name = info.Name,
-                                    method = info,
-                                    monoBehaviour = data.monoBehaviour
-                                };
-                                n.children.Add(finalNode);
-                            }
-                        }
-                    }
-                    else // Type path
-                    {
-                        Node childNode = new Node
-                        {
-                            name = info.Name,
-                            method = info,
-                            monoBehaviour = data.monoBehaviour
-                        };
-
-                        string baseNodeName = info.DeclaringType.ToString();
-
-                        Node baseNode = GetNode(nodes, baseNodeName);
-
-                        if (baseNode != null)
-                        {
-                            // Base node exists
-                            baseNode.children.Add(childNode);
-                        }
-                        else
-                        {
-                            // Base node doesn't exist
-                            baseNode = new Node
-                            {
-                                name = info.DeclaringType.ToString()
-                            };
-                            baseNode.children.Add(childNode);
-
-                            nodes.Add(baseNode);
-                        }
-                    }
+                    context.CreateNodes();
                 }
             }
         }
-
-        /// <summary>
-        /// Returns a list of <see cref="MethodData"/> from active <see cref="MonoBehaviour"/>s in the scene
-        /// </summary>
-        /// <returns></returns>
-        private MethodData[] GetMethodData()
-        {
-            MonoBehaviour[] active = FindObjectsOfType<MonoBehaviour>();
-
-            List<MethodData> methods = new List<MethodData>();
-
-            List<Type> usedTypes = new List<Type>();
-
-            foreach (MonoBehaviour mono in active)
-            {
-                MethodData data = new MethodData();
-                data.methods.AddRange(mono.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public));
-                data.monoBehaviour = mono;
-
-                if (data.methods.Count > 0 && !usedTypes.Contains(mono.GetType()))
-                {
-                    methods.Add(data);
-                    usedTypes.Add(mono.GetType());
-                }
-            }
-
-            return methods.ToArray();
-        }
-
-        /// <summary>
-        /// Returns a <see cref="DebugMethod"/>, if there is no attribute assigned it will return null
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private DebugMethod GetDebugMethod(MethodInfo method)
-        {
-            return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) as DebugMethod;
-        }
-
-        /// <summary>
-        /// Returns an array of <see cref="DebugMethod"/>s
-        /// </summary>
-        /// <param name="methods"></param>
-        /// <returns></returns>
-        private DebugMethod[] GetDebugMethods(MethodInfo[] methods)
-        {
-            List<DebugMethod> methodList = new List<DebugMethod>();
-
-            foreach (MethodInfo methodInfo in methods)
-            {
-                DebugMethod m = Attribute.GetCustomAttribute(methodInfo, typeof(DebugMethod)) as DebugMethod;
-
-                methodList.Add(m);
-            }
-
-            return methodList.ToArray();
-        }
-
-        /// <summary>
-        /// Returns true if a method is a debug method
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private bool IsDebugMethod(MethodInfo method)
-        {
-            return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) is DebugMethod;
-        }
-
-        private static readonly Dictionary<Type, string> TypeAliases = new Dictionary<Type, string>()
-        {
-            {typeof(byte), "byte"},
-            {typeof(sbyte), "sbyte"},
-            {typeof(short), "short"},
-            {typeof(ushort), "ushort"},
-            {typeof(int), "int"},
-            {typeof(uint), "uint"},
-            {typeof(long), "long"},
-            {typeof(ulong), "ulong"},
-            {typeof(float), "float"},
-            {typeof(double), "double"},
-            {typeof(decimal), "decimal"},
-            {typeof(object), "object"},
-            {typeof(bool), "bool"},
-            {typeof(char), "char"},
-            {typeof(string), "string"},
-            {typeof(void), "void"},
-            {typeof(byte?), "byte?"},
-            {typeof(sbyte?), "sbyte?"},
-            {typeof(short?), "short?"},
-            {typeof(ushort?), "ushort?"},
-            {typeof(int?), "int?"},
-            {typeof(uint?), "uint?"},
-            {typeof(long?), "long?"},
-            {typeof(ulong?), "ulong?"},
-            {typeof(float?), "float?"},
-            {typeof(double?), "double?"},
-            {typeof(decimal?), "decimal?"},
-            {typeof(bool?), "bool?"},
-            {typeof(char?), "char?"}
-        };
     }
 }

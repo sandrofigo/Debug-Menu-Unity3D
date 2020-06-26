@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Sandro Figo
 //
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,9 +9,6 @@ namespace DebugMenu
 {
     public class DebugMenuItem : MonoBehaviour
     {
-        public RectTransform panelPrefab;
-        public RectTransform menuItemPrefab;
-
         [HideInInspector]
         public Node node;
 
@@ -21,63 +19,72 @@ namespace DebugMenu
         [HideInInspector]
         public bool panelOpen;
 
+        public Text arrowText;
+
+        public Text text;
+
         private void Start()
         {
             rectTransform = GetComponent<RectTransform>();
         }
 
+        public void Initialize(Node n, Transform parent)
+        {
+            node = n;
+            text.text = n.name;
+            text.color = Settings.TextColor;
+            arrowText.color = Settings.TextColor;
+            
+            transform.SetParent(parent);
+            
+            if (node.HasChildren())
+                arrow.gameObject.SetActive(true);
+        }
+
         public void OnClick()
         {
-            if (node.children.Count > 0)
+            if (node.HasChildren())
             {
                 if (!panelOpen)
                 {
-                    RectTransform panel = Instantiate(panelPrefab, DebugMenuManager.Instance.transform).GetComponent<RectTransform>();
-                    panel.SetParent(DebugMenuManager.Instance.transform);
-
-                    ButtonMenu.Instance.openPanels.Add(panel);
-
                     RectTransform parentPanel = transform.parent.GetComponent<RectTransform>();
-
+                    
+                    RectTransform panel = ButtonMenu.Instance.CreateMenuPanel(node);
                     panel.anchoredPosition = parentPanel.anchoredPosition + new Vector2(parentPanel.rect.width, rectTransform.anchoredPosition.y);
-
-                    foreach (var n in node.children)
-                    {
-                        RectTransform menuItem = Instantiate(menuItemPrefab).GetComponent<RectTransform>();
-                        menuItem.SetParent(panel);
-                        menuItem.GetComponentInChildren<Text>().text = n.name;
-                        DebugMenuItem m = menuItem.GetComponent<DebugMenuItem>();
-                        m.node = n;
-                        if (n.children.Count > 0)
-                        {
-                            m.arrow.gameObject.SetActive(true);
-                        }
-                        else
-                        {
-                            m.arrow.gameObject.SetActive(false);
-                        }
-                    }
-
+                    
                     panelOpen = true;
-
+                    
                     LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
                 }
             }
             else
             {
-                if (node.method.GetParameters().Length == 0)
-                {
-                    DebugMenuManager.Log(node.name);
-                    DebugMenuManager.Instance.lastInvokedNode = node;
-                    object obj = node.method.Invoke(node.monoBehaviour, null);
-                    if (obj != null)
-                        DebugMenuManager.Log($"Return value: {obj}\n");
+                InvokeMethod();
+            }
+        }
 
-                    ButtonMenu.Instance.ResetAllMenuButtons();
-                    ButtonMenu.Instance.DestroyAllOpenPanels();
-                }
-                else
-                    Debug.LogWarning("Methods with parameters in the button menu are not supported yet!");
+        private void InvokeMethod()
+        {
+            DebugMenuManager.Log(node.name);
+            DebugMenuManager.Instance.lastInvokedNode = node;
+
+            object returnValue;
+            
+            if (node.method.GetParameters().Length == 0)
+            {
+                returnValue = node.method.Invoke(node.monoBehaviour, null);
+            }
+            else
+            {
+                returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.parameters[node.parameterIndex]});
+            }
+            
+            DebugMenuManager.Log($"Return value: {returnValue ?? "null"}\n");
+
+            if (Settings.AutoClosePanels)
+            {
+                ButtonMenu.Instance.ResetAllMenuButtons();
+                ButtonMenu.Instance.DestroyAllOpenPanels();
             }
         }
     }
