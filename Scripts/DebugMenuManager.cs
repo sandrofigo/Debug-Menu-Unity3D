@@ -32,6 +32,8 @@ namespace DebugMenu
         private string lastMethod;
 
         public Node lastInvokedNode;
+        
+        private KeyCode enableKeyCode;
 
         private bool Visible { get; set; }
 
@@ -71,12 +73,13 @@ namespace DebugMenu
             // Prevent layout glitch
             LayoutRebuilder.ForceRebuildLayoutImmediate(buttonMenu);
             buttonMenu.gameObject.SetActive(false);
+
+            enableKeyCode = Helper.GetKeyCodeFromString(Settings.EnableKey);
         }
 
         private void Update()
         {
-            //TODO: use EditorPrefs
-            if (Input.GetKeyDown(KeyCode.F1) || Input.GetKeyDown(KeyCode.F3))
+            if (Input.GetKeyDown(enableKeyCode))
             {
                 Visible = !Visible;
 

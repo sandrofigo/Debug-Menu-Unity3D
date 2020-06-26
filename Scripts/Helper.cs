@@ -78,5 +78,10 @@ namespace DebugMenu
         }
 
         public static Node GetNodeByName(IEnumerable<Node> nodeCollection, string nodeName) => nodeCollection.FirstOrDefault(node => node.name == nodeName);
+
+        public static KeyCode GetKeyCodeFromString(string keyCodeString)
+        {
+            return Enum.TryParse(keyCodeString.ToUpper(), out KeyCode keyCode) ? keyCode : KeyCode.None;
+        }
     }
 }
