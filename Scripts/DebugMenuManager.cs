@@ -80,7 +80,8 @@ namespace DebugMenu
             {
                 Visible = !Visible;
 
-                consolePanel.gameObject.SetActive(!consolePanel.gameObject.activeInHierarchy);
+                if(!Settings.HideConsole)
+                    consolePanel.gameObject.SetActive(!consolePanel.gameObject.activeInHierarchy);
 
                 buttonMenu.gameObject.SetActive(!buttonMenu.gameObject.activeInHierarchy);
 

@@ -28,6 +28,10 @@ namespace DebugMenu
                     Settings.TextColor = EditorGUILayout.ColorField(Settings.TextColorSetting.DisplayName, Settings.TextColor);
 
                     EditorGUILayout.Space();
+                    
+                    Settings.HideConsole = EditorGUILayout.Toggle(Settings.HideConsoleSetting.DisplayName, Settings.HideConsole);
+                    
+                    EditorGUILayout.Space();
                     if (GUILayout.Button("Restore Defaults"))
                     {
                         if (EditorUtility.DisplayDialog("Restore Defaults", "Are you sure you want to revert all settings to their default values?", "Yes", "No"))

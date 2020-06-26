@@ -28,5 +28,13 @@ namespace DebugMenu
             set => TextColorSetting.Set(value);
         }
         
+        public static readonly ISetting HideConsoleSetting = new Setting("DEBUG_MENU_SETTINGS_HIDE_CONSOLE", "Hide Console", false);
+        
+        public static bool HideConsole
+        {
+            get => (bool)HideConsoleSetting.Get();
+            set => HideConsoleSetting.Set(value);
+        }
+        
     }
 }
