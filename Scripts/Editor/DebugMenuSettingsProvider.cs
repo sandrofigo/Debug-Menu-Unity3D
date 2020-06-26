@@ -19,18 +19,18 @@ namespace DebugMenu
                 {
                     EditorGUILayout.LabelField("General", EditorStyles.boldLabel);
                     
-                    Settings.EnableKey = EditorGUILayout.TextField(Settings.EnableKeySetting.DisplayName, Settings.EnableKey);
+                    Settings.EnableKey = EditorGUILayout.TextField(Settings.EnableKeySetting.GetGuiContent(), Settings.EnableKey);
                     
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
 
-                    Settings.BackgroundColor = EditorGUILayout.ColorField(Settings.BackgroundColorSetting.DisplayName, Settings.BackgroundColor);
-                    Settings.TextColor = EditorGUILayout.ColorField(Settings.TextColorSetting.DisplayName, Settings.TextColor);
+                    Settings.BackgroundColor = EditorGUILayout.ColorField(Settings.BackgroundColorSetting.GetGuiContent(), Settings.BackgroundColor);
+                    Settings.TextColor = EditorGUILayout.ColorField(Settings.TextColorSetting.GetGuiContent(), Settings.TextColor);
 
                     EditorGUILayout.Space();
                     
-                    Settings.HideConsole = EditorGUILayout.Toggle(Settings.HideConsoleSetting.DisplayName, Settings.HideConsole);
-                    Settings.AutoClosePanels = EditorGUILayout.Toggle(Settings.AutoClosePanelsSetting.DisplayName, Settings.AutoClosePanels);
+                    Settings.HideConsole = EditorGUILayout.Toggle(Settings.HideConsoleSetting.GetGuiContent(), Settings.HideConsole);
+                    Settings.AutoClosePanels = EditorGUILayout.Toggle(Settings.AutoClosePanelsSetting.GetGuiContent(), Settings.AutoClosePanels);
                     
                     EditorGUILayout.Space();
                     if (GUILayout.Button("Restore Defaults"))

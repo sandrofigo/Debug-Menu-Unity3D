@@ -12,14 +12,19 @@ namespace DebugMenu
         public string Key { get; }
         public string DisplayName { get; }
 
+        public string Tooltip { get; }
+
+        public GUIContent GetGuiContent() => new GUIContent(DisplayName, Tooltip);
+
         public object DefaultValue { get; }
 
         /// <remarks>The type that is used to store the data is inferred from <paramref name="defaultValue"/>.</remarks>
-        public Setting(string key, string displayName, object defaultValue)
+        public Setting(string key, string displayName, object defaultValue, string tooltip = default)
         {
             Key = key;
             DisplayName = displayName;
             DefaultValue = defaultValue;
+            Tooltip = tooltip;
         }
 
         public void Set(object value)

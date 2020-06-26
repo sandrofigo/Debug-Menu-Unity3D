@@ -4,7 +4,7 @@ namespace DebugMenu
 {
     public static class Settings
     {
-        public static readonly ISetting EnableKeySetting = new Setting("DEBUG_MENU_SETTINGS_ENABLE_KEY", "Enable Key", "F3");
+        public static readonly ISetting EnableKeySetting = new Setting("DEBUG_MENU_SETTINGS_ENABLE_KEY", "Enable Key", "F3", "The key that enables the debug menu during runtime.");
 
         public static string EnableKey
         {
@@ -28,7 +28,7 @@ namespace DebugMenu
             set => TextColorSetting.Set(value);
         }
         
-        public static readonly ISetting HideConsoleSetting = new Setting("DEBUG_MENU_SETTINGS_HIDE_CONSOLE", "Hide Console", false);
+        public static readonly ISetting HideConsoleSetting = new Setting("DEBUG_MENU_SETTINGS_HIDE_CONSOLE", "Hide Console", false, "Defines if the console should be shown when opening the debug menu.");
         
         public static bool HideConsole
         {
@@ -36,7 +36,7 @@ namespace DebugMenu
             set => HideConsoleSetting.Set(value);
         }
         
-        public static readonly ISetting AutoClosePanelsSetting = new Setting("DEBUG_MENU_SETTINGS_AUTO_CLOSE_PANELS", "Auto Close Panels", true);
+        public static readonly ISetting AutoClosePanelsSetting = new Setting("DEBUG_MENU_SETTINGS_AUTO_CLOSE_PANELS", "Auto Close Panels", true, "Defines if the UI panels should close after a button is pressed.");
         
         public static bool AutoClosePanels
         {
