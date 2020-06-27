@@ -13,9 +13,7 @@ namespace DebugMenu
         public MonoBehaviour monoBehaviour;
 
         public MethodInfo method;
-
-        public Node parent;
-
+        
         public readonly List<Node> children = new List<Node>();
 
         public string name;
