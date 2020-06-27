@@ -1,5 +1,5 @@
 # Debug-Menu-Unity3D
-A debug menu to call public methods on active MonoBehaviours in Unity
+A debug menu to call methods on active MonoBehaviours in Unity
 
 ## Installation
 There are multiple ways to install this package into your project:
