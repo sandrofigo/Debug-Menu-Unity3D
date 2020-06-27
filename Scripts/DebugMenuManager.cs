@@ -35,7 +35,7 @@ namespace DebugMenu
         
         private KeyCode enableKeyCode;
 
-        private bool Visible { get; set; }
+        private bool visible;
 
         public delegate void VisibilityHandler(bool visible);
 
@@ -43,7 +43,7 @@ namespace DebugMenu
 
         private void OnVisibilityChanged()
         {
-            VisibilityChanged?.Invoke(Visible);
+            VisibilityChanged?.Invoke(visible);
         }
 
         private void Start()
@@ -81,14 +81,14 @@ namespace DebugMenu
         {
             if (Input.GetKeyDown(enableKeyCode))
             {
-                Visible = !Visible;
+                visible = !visible;
 
                 if(!Settings.HideConsole)
                     consolePanel.gameObject.SetActive(!consolePanel.gameObject.activeInHierarchy);
 
                 buttonMenu.gameObject.SetActive(!buttonMenu.gameObject.activeInHierarchy);
 
-                if (Visible)
+                if (visible)
                 {
                     inputField.Select();
                     inputField.ActivateInputField();
@@ -116,7 +116,7 @@ namespace DebugMenu
 
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                if (Visible)
+                if (visible)
                 {
                     string input = inputField.text;
 

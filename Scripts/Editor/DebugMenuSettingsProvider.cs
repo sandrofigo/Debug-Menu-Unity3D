@@ -34,6 +34,7 @@ namespace DebugMenu
                     Settings.AutoClosePanels = EditorGUILayout.Toggle(Settings.AutoClosePanelsSetting.GetGuiContent(), Settings.AutoClosePanels);
 
                     EditorGUILayout.Space();
+                    
                     if (GUILayout.Button("Restore Defaults"))
                     {
                         if (EditorUtility.DisplayDialog("Restore Defaults", "Are you sure you want to revert all settings to their default values?", "Yes", "No"))
