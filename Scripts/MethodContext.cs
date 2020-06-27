@@ -22,7 +22,7 @@ namespace DebugMenu
             this.nodes = nodes;
         }
 
-        public IEnumerable<Node> GetNodesForParameters()
+        private IEnumerable<Node> GetNodesForParameters()
         {
             return DebugMethod.parameters.Select((parameter, index) => new Node
             {
