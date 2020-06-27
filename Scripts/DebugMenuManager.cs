@@ -37,28 +37,11 @@ namespace DebugMenu
 
         private bool visible;
 
-        public delegate void VisibilityHandler(bool visible);
-
-        public event VisibilityHandler VisibilityChanged;
-
-        private void OnVisibilityChanged()
-        {
-            VisibilityChanged?.Invoke(visible);
-        }
-
         private void Start()
         {
             outputText = transform.Find("Console Panel/Output Text").GetComponent<Text>();
 
             consolePanel.gameObject.SetActive(false);
-
-            var eventSystem = FindObjectOfType<EventSystem>();
-
-            if (eventSystem == null)
-            {
-                Debug.LogError("No UI EventSystem is present in the current scene!");
-                return;
-            }
 
             ClearSuggestions();
             ClearOutput();
@@ -98,8 +81,6 @@ namespace DebugMenu
                     ButtonMenu.Instance.DestroyAllOpenPanels();
                     ButtonMenu.Instance.ResetAllMenuButtons();
                 }
-
-                OnVisibilityChanged();
             }
 
             if (Input.GetKeyDown(KeyCode.F4) && lastInvokedNode != null)
