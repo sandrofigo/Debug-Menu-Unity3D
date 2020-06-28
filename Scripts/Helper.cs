@@ -49,6 +49,11 @@ namespace DebugMenu
         {
             return Attribute.GetCustomAttribute(method, typeof(DebugMethod)) as DebugMethod;
         }
+        
+        public static DebugMethodPriority GetDebugMethodPriority(Type type)
+        {
+            return Attribute.GetCustomAttribute(type, typeof(DebugMethodPriority)) as DebugMethodPriority;
+        }
 
         /// <summary>
         /// Returns a list of <see cref="MethodData"/> from active <see cref="MonoBehaviour"/>s in the scene.

@@ -41,10 +41,13 @@ namespace DebugMenu
             Node baseNode = Helper.GetNodeByName(overrideNodeCollection ?? nodes, baseNodeName);
 
             alreadyExists = baseNode != null;
+            
+            DebugMethodPriority priorityAttribute = Helper.GetDebugMethodPriority(MethodInfo.DeclaringType);
 
             return baseNode ?? new Node
             {
-                name = baseNodeName
+                name = baseNodeName,
+                priority = priorityAttribute?.priority ?? 0
             };
         }
 

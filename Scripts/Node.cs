@@ -22,6 +22,8 @@ namespace DebugMenu
 
         public int parameterIndex = -1;
 
+        public int priority;
+
         public bool HasChildren() => children.Any();
     }
 }
