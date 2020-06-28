@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace DebugMenu
@@ -32,7 +32,7 @@ namespace DebugMenu
         private string lastMethod;
 
         public Node lastInvokedNode;
-        
+
         private KeyCode enableKeyCode;
 
         private bool visible;
@@ -66,7 +66,7 @@ namespace DebugMenu
             {
                 visible = !visible;
 
-                if(!Settings.HideConsole)
+                if (!Settings.HideConsole)
                     consolePanel.gameObject.SetActive(!consolePanel.gameObject.activeInHierarchy);
 
                 buttonMenu.gameObject.SetActive(!buttonMenu.gameObject.activeInHierarchy);
@@ -306,11 +306,17 @@ namespace DebugMenu
                     if (method == null)
                         continue;
 
-                    MethodContext context = new MethodContext(data, info, method, nodes);
+                    var context = new MethodContext(data, info, method, nodes);
 
                     context.CreateNodes();
                 }
             }
+
+            // Sort nodes by name
+            nodes.Sort((node1, node2) => string.Compare(node1.name, node2.name, StringComparison.Ordinal));
+
+            // Sort base nodes based on priority
+            nodes.Sort((node1, node2) => node2.priority.CompareTo(node1.priority));
         }
     }
 }
