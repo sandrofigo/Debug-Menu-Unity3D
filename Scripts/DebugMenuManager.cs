@@ -215,6 +215,9 @@ namespace DebugMenu
 
             foreach (Node node in currentNodes)
             {
+                if(node.debugMethod?.HasParameters ?? false)
+                    continue;
+
                 if (node.name.StartsWith(split[split.Length - 1], StringComparison.OrdinalIgnoreCase))
                 {
                     string suggestion = parentPath + (parentPath == string.Empty ? string.Empty : ".") + node.name;
