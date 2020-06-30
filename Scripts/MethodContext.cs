@@ -24,9 +24,9 @@ namespace DebugMenu
 
         private IEnumerable<Node> GetNodesForParameters()
         {
-            return DebugMethod.parameters.Select((parameter, index) => new Node
+            return DebugMethod.Parameters.Select((parameter, index) => new Node
             {
-                name = $"{(DebugMethod.HasCustomName ? DebugMethod.customName : MethodInfo.Name)} ({parameter})",
+                name = $"{(DebugMethod.HasCustomName ? DebugMethod.Name : MethodInfo.Name)} ({parameter})",
                 method = MethodInfo,
                 monoBehaviour = MethodData.monoBehaviour,
                 debugMethod = DebugMethod,
@@ -54,7 +54,7 @@ namespace DebugMenu
         private Node GetFinalNode() =>
             new Node
             {
-                name = DebugMethod.HasCustomName ? DebugMethod.customName : MethodInfo.Name,
+                name = DebugMethod.HasCustomName ? DebugMethod.Name : MethodInfo.Name,
                 method = MethodInfo,
                 monoBehaviour = MethodData.monoBehaviour,
                 debugMethod = DebugMethod
@@ -76,7 +76,7 @@ namespace DebugMenu
         {
             if (DebugMethod.HasCustomPath) // Custom path
             {
-                string[] split = DebugMethod.customPath.Split('/');
+                string[] split = DebugMethod.Path.Split('/');
 
                 List<Node> currentNodeList = nodes;
 

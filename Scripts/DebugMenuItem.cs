@@ -70,7 +70,7 @@ namespace DebugMenu
 
             object returnValue;
 
-            if (node.debugMethod.useReturnValue)
+            if (node.debugMethod.UseReturnValue)
             {
                 returnValue = node.method.Invoke(node.monoBehaviour, new[] {DebugMenuManager.Instance.lastReturnValue});
             }
@@ -82,7 +82,7 @@ namespace DebugMenu
                 }
                 else
                 {
-                    returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.parameters[node.parameterIndex]});
+                    returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.Parameters[node.parameterIndex]});
                 }
             }
 
