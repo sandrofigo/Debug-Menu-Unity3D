@@ -14,11 +14,28 @@ namespace DebugMenu
             get
             {
                 if (instance == null)
-                    Debug.LogError($"The singleton ({typeof(T).Name}) you were trying to access was not part of the scene! Add the component to a game object first and try again.");
+                {
+                    if (AutomaticCreation)
+                    {
+                        GameObject gameObjectInstance = new GameObject(nameof(T));
+                        var singleton = gameObjectInstance.AddComponent(typeof(T));
+                        
+                        instance = singleton as T;
+                    }
+                    else
+                    {
+                        Debug.LogError($"The singleton ({typeof(T).Name}) you were trying to access was not part of the scene! Add the component to a game object first and try again.");
+                    }
+                }
 
                 return instance;
             }
         }
+
+        /// <summary>
+        /// Defines if the singleton should create itself in the active scene when its instance is first called.
+        /// </summary>
+        public static bool AutomaticCreation { get; set; }
 
         protected virtual void Awake()
         {
