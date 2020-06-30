@@ -27,12 +27,14 @@ namespace DebugMenu
 
         private static Text outputText;
 
-        private readonly List<Node> nodes = new List<Node>();
+        public readonly List<Node> nodes = new List<Node>();
 
         private string lastMethod;
 
         public Node lastInvokedNode;
 
+        public object lastReturnValue;
+        
         private KeyCode enableKeyCode;
 
         private bool visible;
@@ -153,7 +155,7 @@ namespace DebugMenu
 
                     Log(inputField.text);
                     lastInvokedNode = node;
-                    object obj = node.method.Invoke(node.monoBehaviour, parameters.ToArray());
+                    object obj = node.method.Invoke(node.monoBehaviour, parameters.ToArray()); //TODO: unify invocation (DebugMenuItem)
                     Log($"Return value: {obj ?? "null"}\n");
                 }
                 else
@@ -264,7 +266,7 @@ namespace DebugMenu
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        private Node FindNodeByPath(string path)
+        public Node FindNodeByPath(string path)
         {
             string[] split = path.Split('.');
 

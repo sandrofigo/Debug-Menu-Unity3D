@@ -70,7 +70,7 @@ namespace DebugMenu
 
             object returnValue;
             
-            if (node.method.GetParameters().Length == 0)
+            if (node.debugMethod.HasParameters)
             {
                 returnValue = node.method.Invoke(node.monoBehaviour, null);
             }
@@ -78,6 +78,8 @@ namespace DebugMenu
             {
                 returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.parameters[node.parameterIndex]});
             }
+
+            DebugMenuManager.Instance.lastReturnValue = returnValue;
             
             DebugMenuManager.Log($"Return value: {returnValue ?? "null"}\n");
 
