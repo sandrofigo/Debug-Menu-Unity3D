@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,7 +33,7 @@ namespace DebugMenu
         public Node lastInvokedNode;
 
         public object lastReturnValue;
-        
+
         private KeyCode enableKeyCode;
 
         private bool visible;
@@ -215,7 +214,7 @@ namespace DebugMenu
 
             foreach (Node node in currentNodes)
             {
-                if(node.debugMethod?.HasParameters ?? false)
+                if (node.debugMethod?.HasParameters ?? false)
                     continue;
 
                 if (node.name.StartsWith(split[split.Length - 1], StringComparison.OrdinalIgnoreCase))

@@ -9,7 +9,7 @@ namespace DebugMenu
     [AttributeUsage(AttributeTargets.Method)]
     public class DebugMethod : Attribute
     {
-        public DebugMethod(string customPath = "", string customName = "", params object[] parameters)
+        public DebugMethod(string customPath = "", string customName = "", bool useReturnValue = false, params object[] parameters)
         {
             if (!string.IsNullOrWhiteSpace(customPath))
                 this.customPath = customPath;
@@ -17,9 +17,11 @@ namespace DebugMenu
                 this.customName = customName;
 
             this.parameters = parameters.Length == 0 ? null : parameters;
+
+            this.useReturnValue = useReturnValue;
         }
 
-        public DebugMethod(string customPath = "", params object[] parameters) : this(customPath, string.Empty, parameters)
+        public DebugMethod(string customPath = "", params object[] parameters) : this(customPath, string.Empty, false, parameters)
         {
         }
         
@@ -35,5 +37,7 @@ namespace DebugMenu
 
         public readonly object[] parameters;
         public bool HasParameters => parameters != null;
+        
+        public readonly bool useReturnValue;
     }
 }
