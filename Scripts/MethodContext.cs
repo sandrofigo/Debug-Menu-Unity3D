@@ -22,11 +22,11 @@ namespace DebugMenu
             this.nodes = nodes;
         }
 
-        public IEnumerable<Node> GetNodesForParameters()
+        private IEnumerable<Node> GetNodesForParameters()
         {
-            return DebugMethod.parameters.Select((parameter, index) => new Node
+            return DebugMethod.Parameters.Select((parameter, index) => new Node
             {
-                name = $"{MethodInfo.Name} ({parameter})",
+                name = $"{(DebugMethod.HasCustomName ? DebugMethod.Name : MethodInfo.Name)} ({parameter})",
                 method = MethodInfo,
                 monoBehaviour = MethodData.monoBehaviour,
                 debugMethod = DebugMethod,
@@ -34,38 +34,35 @@ namespace DebugMenu
             });
         }
 
-        public bool HasCustomPath => DebugMethod.customPath != string.Empty;
-
-        public bool HasParameters => DebugMethod.parameters != null;
-
-        public Node GetBaseNode(out bool alreadyExists, IEnumerable<Node> overrideNodeCollection, string overrideName)
+        private Node GetBaseNode(out bool alreadyExists, IEnumerable<Node> overrideNodeCollection, string overrideName)
         {
             string baseNodeName = overrideName ?? (MethodInfo.DeclaringType == null ? "null" : MethodInfo.DeclaringType.ToString());
 
             Node baseNode = Helper.GetNodeByName(overrideNodeCollection ?? nodes, baseNodeName);
 
             alreadyExists = baseNode != null;
+            
+            DebugMethodPriority priorityAttribute = Helper.GetDebugMethodPriority(MethodInfo.DeclaringType);
 
             return baseNode ?? new Node
             {
-                name = baseNodeName
+                name = baseNodeName,
+                priority = priorityAttribute?.priority ?? 0
             };
         }
 
-        public Node GetBaseNode(out bool alreadyExists) => GetBaseNode(out alreadyExists, null, null);
-
-        public Node GetFinalNode() =>
+        private Node GetFinalNode() =>
             new Node
             {
-                name = MethodInfo.Name,
+                name = DebugMethod.HasCustomName ? DebugMethod.Name : MethodInfo.Name,
                 method = MethodInfo,
                 monoBehaviour = MethodData.monoBehaviour,
                 debugMethod = DebugMethod
             };
 
-        public void AttachFinalNodeTo(Node node)
+        private void AttachFinalNodeTo(Node node)
         {
-            if (HasParameters)
+            if (DebugMethod.HasParameters)
             {
                 node.children.AddRange(GetNodesForParameters());
             }
@@ -77,15 +74,16 @@ namespace DebugMenu
 
         public void CreateNodes()
         {
-            if (HasCustomPath) // Custom path
+            if (DebugMethod.HasCustomPath) // Custom path
             {
-                string[] split = DebugMethod.customPath.Split('/');
+                string[] split = DebugMethod.Path.Split('/');
 
                 List<Node> currentNodeList = nodes;
 
                 for (int splitIndex = 0; splitIndex < split.Length; splitIndex++)
                 {
                     Node baseNode = GetBaseNode(out bool alreadyExists, currentNodeList, split[splitIndex]);
+
                     if (!alreadyExists)
                         currentNodeList.Add(baseNode);
 
@@ -99,7 +97,7 @@ namespace DebugMenu
             }
             else // Type path
             {
-                Node baseNode = GetBaseNode(out bool alreadyExists);
+                Node baseNode = GetBaseNode(out bool alreadyExists, null, null);
                 if (!alreadyExists)
                     nodes.Add(baseNode);
 

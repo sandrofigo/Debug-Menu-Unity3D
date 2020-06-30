@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace DebugMenu
@@ -27,38 +26,23 @@ namespace DebugMenu
 
         private static Text outputText;
 
-        private readonly List<Node> nodes = new List<Node>();
+        public readonly List<Node> nodes = new List<Node>();
 
         private string lastMethod;
 
         public Node lastInvokedNode;
-        
+
+        public object lastReturnValue;
+
         private KeyCode enableKeyCode;
 
-        private bool Visible { get; set; }
-
-        public delegate void VisibilityHandler(bool visible);
-
-        public event VisibilityHandler VisibilityChanged;
-
-        private void OnVisibilityChanged()
-        {
-            VisibilityChanged?.Invoke(Visible);
-        }
+        private bool visible;
 
         private void Start()
         {
             outputText = transform.Find("Console Panel/Output Text").GetComponent<Text>();
 
             consolePanel.gameObject.SetActive(false);
-
-            var eventSystem = FindObjectOfType<EventSystem>();
-
-            if (eventSystem == null)
-            {
-                Debug.LogError("No UI EventSystem is present in the current scene!");
-                return;
-            }
 
             ClearSuggestions();
             ClearOutput();
@@ -81,14 +65,14 @@ namespace DebugMenu
         {
             if (Input.GetKeyDown(enableKeyCode))
             {
-                Visible = !Visible;
+                visible = !visible;
 
-                if(!Settings.HideConsole)
+                if (!Settings.HideConsole)
                     consolePanel.gameObject.SetActive(!consolePanel.gameObject.activeInHierarchy);
 
                 buttonMenu.gameObject.SetActive(!buttonMenu.gameObject.activeInHierarchy);
 
-                if (Visible)
+                if (visible)
                 {
                     inputField.Select();
                     inputField.ActivateInputField();
@@ -98,8 +82,6 @@ namespace DebugMenu
                     ButtonMenu.Instance.DestroyAllOpenPanels();
                     ButtonMenu.Instance.ResetAllMenuButtons();
                 }
-
-                OnVisibilityChanged();
             }
 
             if (Input.GetKeyDown(KeyCode.F4) && lastInvokedNode != null)
@@ -116,7 +98,7 @@ namespace DebugMenu
 
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                if (Visible)
+                if (visible)
                 {
                     string input = inputField.text;
 
@@ -172,7 +154,7 @@ namespace DebugMenu
 
                     Log(inputField.text);
                     lastInvokedNode = node;
-                    object obj = node.method.Invoke(node.monoBehaviour, parameters.ToArray());
+                    object obj = node.method.Invoke(node.monoBehaviour, parameters.ToArray()); //TODO: unify invocation (DebugMenuItem)
                     Log($"Return value: {obj ?? "null"}\n");
                 }
                 else
@@ -232,6 +214,9 @@ namespace DebugMenu
 
             foreach (Node node in currentNodes)
             {
+                if (node.debugMethod?.HasParameters ?? false)
+                    continue;
+
                 if (node.name.StartsWith(split[split.Length - 1], StringComparison.OrdinalIgnoreCase))
                 {
                     string suggestion = parentPath + (parentPath == string.Empty ? string.Empty : ".") + node.name;
@@ -283,7 +268,7 @@ namespace DebugMenu
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        private Node FindNodeByPath(string path)
+        public Node FindNodeByPath(string path)
         {
             string[] split = path.Split('.');
 
@@ -325,11 +310,17 @@ namespace DebugMenu
                     if (method == null)
                         continue;
 
-                    MethodContext context = new MethodContext(data, info, method, nodes);
+                    var context = new MethodContext(data, info, method, nodes);
 
                     context.CreateNodes();
                 }
             }
+
+            // Sort nodes by name
+            nodes.Sort((node1, node2) => string.Compare(node1.name, node2.name, StringComparison.Ordinal));
+
+            // Sort base nodes based on priority
+            nodes.Sort((node1, node2) => node2.priority.CompareTo(node1.priority));
         }
     }
 }

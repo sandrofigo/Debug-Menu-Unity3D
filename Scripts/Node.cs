@@ -13,9 +13,7 @@ namespace DebugMenu
         public MonoBehaviour monoBehaviour;
 
         public MethodInfo method;
-
-        public Node parent;
-
+        
         public readonly List<Node> children = new List<Node>();
 
         public string name;
@@ -23,6 +21,8 @@ namespace DebugMenu
         public DebugMethod debugMethod;
 
         public int parameterIndex = -1;
+
+        public int priority;
 
         public bool HasChildren() => children.Any();
     }

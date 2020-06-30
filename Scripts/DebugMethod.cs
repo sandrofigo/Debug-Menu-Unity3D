@@ -1,6 +1,7 @@
 ﻿//
 // Copyright (c) Sandro Figo
 //
+
 using System;
 
 namespace DebugMenu
@@ -8,20 +9,34 @@ namespace DebugMenu
     [AttributeUsage(AttributeTargets.Method)]
     public class DebugMethod : Attribute
     {
-        public DebugMethod(string customPath = "", params object[] parameters)
+        private DebugMethod(string customPath = "", string customName = "", bool useReturnValue = false, params object[] parameters)
         {
             if (!string.IsNullOrWhiteSpace(customPath))
-                this.customPath = customPath;
-            
-            this.parameters = parameters.Length == 0 ? null : parameters;
+                Path = customPath;
+            if (!string.IsNullOrWhiteSpace(customName))
+                Name = customName;
+
+            Parameters = parameters.Length == 0 ? null : parameters;
+
+            UseReturnValue = useReturnValue;
         }
 
-        public DebugMethod(params object[] parameters) : this(string.Empty, parameters)
+        public DebugMethod(params object[] parameters) : this(string.Empty, string.Empty, false, parameters)
         {
         }
 
-        public readonly string customPath = string.Empty;
+        public string Path { get; set; } = string.Empty;
 
-        public readonly object[] parameters;
+        public string Name { get; set; } = string.Empty;
+
+        public object[] Parameters { get; set; }
+
+        public bool UseReturnValue { get; set; }
+
+        public bool HasCustomPath => Path != string.Empty;
+
+        public bool HasCustomName => Name != string.Empty;
+
+        public bool HasParameters => Parameters != null;
     }
 }

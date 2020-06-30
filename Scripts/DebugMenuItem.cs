@@ -34,9 +34,9 @@ namespace DebugMenu
             text.text = n.name;
             text.color = Settings.TextColor;
             arrowText.color = Settings.TextColor;
-            
+
             transform.SetParent(parent);
-            
+
             if (node.HasChildren())
                 arrow.gameObject.SetActive(true);
         }
@@ -48,12 +48,12 @@ namespace DebugMenu
                 if (!panelOpen)
                 {
                     RectTransform parentPanel = transform.parent.GetComponent<RectTransform>();
-                    
+
                     RectTransform panel = ButtonMenu.Instance.CreateMenuPanel(node);
                     panel.anchoredPosition = parentPanel.anchoredPosition + new Vector2(parentPanel.rect.width, rectTransform.anchoredPosition.y);
-                    
+
                     panelOpen = true;
-                    
+
                     LayoutRebuilder.ForceRebuildLayoutImmediate(panel);
                 }
             }
@@ -69,16 +69,25 @@ namespace DebugMenu
             DebugMenuManager.Instance.lastInvokedNode = node;
 
             object returnValue;
-            
-            if (node.method.GetParameters().Length == 0)
+
+            if (node.debugMethod.UseReturnValue)
             {
-                returnValue = node.method.Invoke(node.monoBehaviour, null);
+                returnValue = node.method.Invoke(node.monoBehaviour, new[] {DebugMenuManager.Instance.lastReturnValue});
             }
             else
             {
-                returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.parameters[node.parameterIndex]});
+                if (!node.debugMethod.HasParameters)
+                {
+                    returnValue = node.method.Invoke(node.monoBehaviour, null);
+                }
+                else
+                {
+                    returnValue = node.method.Invoke(node.monoBehaviour, new[] {node.debugMethod.Parameters[node.parameterIndex]});
+                }
             }
-            
+
+            DebugMenuManager.Instance.lastReturnValue = returnValue;
+
             DebugMenuManager.Log($"Return value: {returnValue ?? "null"}\n");
 
             if (Settings.AutoClosePanels)

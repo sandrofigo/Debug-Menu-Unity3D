@@ -1,10 +1,10 @@
 {
 	"author": "Sandro Figo (https://sandrofigo.com)",
-	"description": "A debug menu to call public methods on active MonoBehaviours.",
+	"description": "A debug menu to call methods on active MonoBehaviours.",
 	"displayName": "Debug Menu",
 	"license": "MIT",
 	"name": "com.sandrofigo.debug-menu-unity3d",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"dependencies": {
 	}
 }

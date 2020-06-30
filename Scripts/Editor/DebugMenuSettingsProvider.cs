@@ -20,7 +20,6 @@ namespace DebugMenu
                     EditorGUILayout.LabelField("General", EditorStyles.boldLabel);
 
                     Settings.EnableKey = EditorGUILayout.TextField(Settings.EnableKeySetting.GetGuiContent(), Settings.EnableKey);
-                    Settings.EnableInBuild = EditorGUILayout.Toggle(Settings.EnableInBuildSetting.GetGuiContent(), Settings.EnableInBuild);
 
                     EditorGUILayout.Space();
                     EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
@@ -29,11 +28,12 @@ namespace DebugMenu
                     Settings.TextColor = EditorGUILayout.ColorField(Settings.TextColorSetting.GetGuiContent(), Settings.TextColor);
 
                     EditorGUILayout.Space();
-                    
+
                     Settings.HideConsole = EditorGUILayout.Toggle(Settings.HideConsoleSetting.GetGuiContent(), Settings.HideConsole);
                     Settings.AutoClosePanels = EditorGUILayout.Toggle(Settings.AutoClosePanelsSetting.GetGuiContent(), Settings.AutoClosePanels);
 
                     EditorGUILayout.Space();
+
                     if (GUILayout.Button("Restore Defaults"))
                     {
                         if (EditorUtility.DisplayDialog("Restore Defaults", "Are you sure you want to revert all settings to their default values?", "Yes", "No"))
@@ -43,7 +43,7 @@ namespace DebugMenu
                             {
                                 setting.Set(setting.DefaultValue);
                             }
-                            
+
                             EditorGUI.FocusTextInControl(string.Empty);
                         }
                     }

@@ -40,10 +40,7 @@ namespace DebugMenu
 
         public void CreateMenuButtons(IEnumerable<Node> nodes)
         {
-            var nodeList = nodes.ToList();
-            nodeList.Sort((node1, node2) => string.Compare(node1.name, node2.name, StringComparison.Ordinal));
-
-            foreach (Node node in nodeList)
+            foreach (Node node in nodes)
             {
                 GameObject menuButton = Instantiate(menuButtonPrefab, transform, true);
 
