@@ -25,4 +25,4 @@ public class Foo : MonoBehaviour
 This will create a button inside the debug menu which you can access by pressing <kbd>F3</kbd> while the game is running.
 Note, this will only work if the MonoBehaviour is active in a scene when it is loaded.
 
-For a more detailed documentation of attributes, please refer to the [Wiki](https://github.com/sandrofigo/Debug-Menu-Unity3D/wiki).
+For a more detailed documentation of attributes, please refer to the [Wiki](https://github.com/sandrofigo/Debug-Menu-Unity3D/wiki/Attribute-Usage).
