@@ -38,6 +38,8 @@ namespace DebugMenu
 
         private bool visible;
 
+        private CursorState lastCursorState;
+
         private void Start()
         {
             outputText = transform.Find("Console Panel/Output Text").GetComponent<Text>();
@@ -76,11 +78,16 @@ namespace DebugMenu
                 {
                     inputField.Select();
                     inputField.ActivateInputField();
+
+                    lastCursorState = GetCursorState();
+                    EnableCursor();
                 }
                 else
                 {
                     ButtonMenu.Instance.DestroyAllOpenPanels();
                     ButtonMenu.Instance.ResetAllMenuButtons();
+
+                    RestorePreviousCursorState();
                 }
             }
 
@@ -165,6 +172,23 @@ namespace DebugMenu
                 inputField.text = string.Empty;
                 inputField.ActivateInputField();
             }
+        }
+
+        private void RestorePreviousCursorState()
+        {
+            Cursor.visible = lastCursorState.isVisible;
+            Cursor.lockState = lastCursorState.lockMode;
+        }
+
+        private static void EnableCursor()
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        private static CursorState GetCursorState()
+        {
+            return new CursorState {isVisible = Cursor.visible, lockMode = Cursor.lockState};
         }
 
         private void OnInputFieldChanged()
