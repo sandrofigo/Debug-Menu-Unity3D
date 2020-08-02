@@ -7,10 +7,7 @@ namespace DebugMenu.Tests
         [Test]
         public void CustomPathPropertyWorks()
         {
-            var method = new DebugMethod
-            {
-                Path = "root/sub1/sub2"
-            };
+            DebugMethod method = A.DebugMethod.WithPath("root/sub1/sub2");
 
             Assert.IsTrue(method.HasCustomPath);
         }
@@ -18,11 +15,7 @@ namespace DebugMenu.Tests
         [Test]
         public void CustomNamePropertyWorks()
         {
-            var method = new DebugMethod
-            {
-                Path = "root/sub1/sub2",
-                Name = "custom name"
-            };
+            DebugMethod method = A.DebugMethod.WithPath("root/sub1/sub2").WithName("custom name");
 
             Assert.IsTrue(method.HasCustomName);
         }
@@ -30,16 +23,8 @@ namespace DebugMenu.Tests
         [Test]
         public void ParameterPropertyWorks()
         {
-            var method1 = new DebugMethod
-            {
-                Path = "root/sub1/sub2",
-                Parameters = new object[] {0, 1, 2, 3}
-            };
-
-            var method2 = new DebugMethod
-            {
-                Parameters = new object[] {0, 1, 2, 3}
-            };
+            DebugMethod method1 = A.DebugMethod.WithPath("root/sub1/sub2").WithParameters(new object[] {0, 1, 2, 3});
+            DebugMethod method2 = A.DebugMethod.WithParameters(new object[] {0, 1, 2, 3});
 
             Assert.IsTrue(method1.HasParameters);
             Assert.IsTrue(method2.HasParameters);
@@ -48,26 +33,12 @@ namespace DebugMenu.Tests
         [Test]
         public void FindNodeByPathWorks()
         {
-            Node root = new Node
-            {
-                name = "Root"
-            };
-
-            Node sub1 = new Node
-            {
-                name = "Sub1"
-            };
-
-            Node sub2 = new Node
-            {
-                name = "Sub2"
-            };
-
-            root.children.Add(sub1);
-            sub1.children.Add(sub2);
+            Node sub2 = A.Node.WithName("Sub2");
+            Node sub1 = A.Node.WithName("Sub1").WithChild(sub2);
+            Node root = A.Node.WithName("Root").WithChild(sub1);
 
             DebugMenuManager.AutomaticCreation = true;
-
+            
             DebugMenuManager.Instance.nodes.Add(root);
 
             Node result1 = DebugMenuManager.Instance.FindNodeByPath("Root.Sub1.Sub2");
