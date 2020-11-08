@@ -17,6 +17,9 @@ namespace DebugMenu
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            if (mode == LoadSceneMode.Additive)
+                return;
+            
             if (FindObjectOfType<EventSystem>() == null)
             {
                 var eventSystemObject = new GameObject {name = "EventSystem"};
