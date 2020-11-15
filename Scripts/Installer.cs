@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
@@ -6,10 +7,22 @@ namespace DebugMenu
 {
     public class Installer : MonoBehaviour
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void OnAfterSceneLoadRuntimeMethod()
+        private const string EnableFileName = ".enable_debug_menu";
+
+        private static bool enableFileExists;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+        private static void OnBeforeSplashScreenRuntimeMethod()
         {
-            if (!Debug.isDebugBuild && !Application.isEditor)
+            enableFileExists = File.Exists(EnableFileName);
+        }
+
+        private static bool ShouldInstall => Application.isEditor || enableFileExists;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void OnBeforeSceneLoadRuntimeMethod()
+        {
+            if (!ShouldInstall)
                 return;
 
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -19,7 +32,7 @@ namespace DebugMenu
         {
             if (mode == LoadSceneMode.Additive)
                 return;
-            
+
             if (FindObjectOfType<EventSystem>() == null)
             {
                 var eventSystemObject = new GameObject {name = "EventSystem"};
