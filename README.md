@@ -29,3 +29,6 @@ This will create a button inside the debug menu which you can access by pressing
 Note, this will only work if the MonoBehaviour is active in a scene when it is loaded.
 
 For a more detailed documentation of attributes, please refer to the [Wiki](https://github.com/sandrofigo/Debug-Menu-Unity3D/wiki/Attribute-Usage).
+
+## Collaboration
+Support this project with a ⭐️, report an issue or if you feel adventurous and would like to extend the functionality open a pull request.
