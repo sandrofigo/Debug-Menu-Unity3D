@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 using UnityEngine.UI;
 
 namespace DebugMenu
@@ -65,7 +68,11 @@ namespace DebugMenu
 
         private void Update()
         {
+#if (!ENABLE_INPUT_SYSTEM)
             if (Input.GetKeyDown(enableKeyCode))
+#else
+            if (Keyboard.current.f3Key.wasPressedThisFrame) //TODO: read key from settings
+#endif
             {
                 visible = !visible;
 
@@ -91,7 +98,11 @@ namespace DebugMenu
                 }
             }
 
+#if (!ENABLE_INPUT_SYSTEM)
             if (Input.GetKeyDown(KeyCode.F4) && lastInvokedNode != null)
+#else
+            if (Keyboard.current.f4Key.wasPressedThisFrame && lastInvokedNode != null)
+#endif
             {
                 if (lastInvokedNode.method.GetParameters().Length == 0)
                 {
@@ -103,7 +114,11 @@ namespace DebugMenu
                 }
             }
 
+#if (!ENABLE_INPUT_SYSTEM)
             if (Input.GetKeyDown(KeyCode.Tab))
+#else
+            if (Keyboard.current.tabKey.wasPressedThisFrame)
+#endif
             {
                 if (visible)
                 {
@@ -125,13 +140,21 @@ namespace DebugMenu
                 }
             }
 
+#if (!ENABLE_INPUT_SYSTEM)
             if (Input.GetKeyDown(KeyCode.UpArrow))
+#else
+            if (Keyboard.current.upArrowKey.wasPressedThisFrame)
+#endif
             {
                 inputField.text = lastMethod;
                 inputField.caretPosition = inputField.text.Length;
             }
 
+#if (!ENABLE_INPUT_SYSTEM)
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+#else
+            if (Keyboard.current.backspaceKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame)
+#endif
             {
                 lastMethod = inputField.text;
 
@@ -188,7 +211,7 @@ namespace DebugMenu
 
         private static CursorState GetCursorState()
         {
-            return new CursorState {isVisible = Cursor.visible, lockMode = Cursor.lockState};
+            return new CursorState { isVisible = Cursor.visible, lockMode = Cursor.lockState };
         }
 
         private void OnInputFieldChanged()
