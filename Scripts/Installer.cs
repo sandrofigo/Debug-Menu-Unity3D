@@ -1,6 +1,9 @@
 ﻿using System.IO;
 using UnityEngine;
 using UnityEngine.EventSystems;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
 using UnityEngine.SceneManagement;
 
 namespace DebugMenu
@@ -35,9 +38,13 @@ namespace DebugMenu
 
             if (FindObjectOfType<EventSystem>() == null)
             {
-                var eventSystemObject = new GameObject {name = "EventSystem"};
+                var eventSystemObject = new GameObject { name = "EventSystem" };
                 eventSystemObject.AddComponent<EventSystem>();
+#if !ENABLE_INPUT_SYSTEM
                 eventSystemObject.AddComponent<StandaloneInputModule>();
+#else
+                eventSystemObject.AddComponent<InputSystemUIInputModule>();
+#endif
             }
 
             foreach (var item in FindObjectsOfType<DebugMenuManager>())
